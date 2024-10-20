@@ -1,0 +1,101 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+  
+  /* Styling the login container */
+.login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f9;
+    font-family: 'Helvetica Neue', sans-serif;
+    color: #333;
+}
+  
+  /* Header styling */
+h1 {
+    color: #1f1c4a;
+    font-size: 36px;
+    margin-bottom: 30px;
+}
+  
+  /* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    padding: 40px 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+}
+  
+form label {
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #333;
+}
+  
+  /* Input fields styling */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+  
+  /* Login button styling */
+button {
+    width: 100%;
+    padding: 15px;
+    background: #1f1c4a;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+  
+button:hover {
+    background-color: #6c63ff;
+    transform: translateY(-5px);
+}
+
+.register-link {
+    margin-bottom: 20px;
+}
+  
+  /* Separator styling */
+.separator {
+    margin: 20px 0;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    font-weight: bold;
+}
+  
+  
+  /* Add some spacing between elements */
+.login input {
+    margin-bottom: 20px;
+}
+  
+  /* Responsive design */
+@media (max-width: 600px) {
+    .login form {
+      padding: 20px;
+    }
+}
+  
