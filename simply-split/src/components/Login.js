@@ -1,28 +1,40 @@
 import { useState } from 'react';
-import { auth, provider, signInWithPopup } from './firebase'; 
+import { auth, googleProvider } from './firebase' 
+import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth'; 
 import { useNavigate } from 'react-router-dom'; 
 import './Login.css';
 
 function Login({ onLogin }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');  // State to handle login errors
   const navigate = useNavigate(); // Initialize navigate
 
   // Function for normal login
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Normal login logic goes here
-    onLogin();  // Assuming login is successful
+  const handleLogin = async (event) => {
+    event.preventDefault();  // Prevent form refresh on submit
+    setError('');  // Clear any previous error
+
+    try {
+      // Sign in user with Firebase using email and password
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('User logged in:', userCredential.user);
+      onLogin();
+      navigate('/home');
+    } catch (error) {
+      console.error('Login error', error);
+      setError('Invalid email or password. Please try again.');
+    }
   };
 
   // Function for Google login
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      console.log(result.user); // User info returned by Google
-      onLogin();  // Set user as authenticated
+      await signInWithPopup(auth, googleProvider);
+      navigate('/home');
     } catch (error) {
       console.error('Google login error', error);
+      setError('Login failed. Please try again.');
     }
   };
 
@@ -34,17 +46,16 @@ function Login({ onLogin }) {
   return (
     <div className="login">
       <h1>Login to SimplySplit</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLogin}>
         <label>
-          Username:
+          Email:
           <input 
             type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
             required 
           />
         </label>
-        <br />
         <label>
           Password:
           <input 
@@ -53,11 +64,12 @@ function Login({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)} 
             required 
           />
+          {/* Error message if passwords don't match */}
+          {error && <p className="error-message">{error}</p>}
         </label>
-        <br />
         <p className="register-link">
-          Don't have an account? 
-          <span onClick={handleRegisterRedirect} className="clickable"> Register here!</span>
+          Don't have an account? Register
+          <span onClick={handleRegisterRedirect} className="clickable"> here!</span>
         </p>
         <button type="submit">Login</button>
         <div className="separator">OR</div>

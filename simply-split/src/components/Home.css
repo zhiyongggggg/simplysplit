@@ -1,92 +1,143 @@
 /* Reset some default margins and paddings */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  /* Styling the App container */
-  .app {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 100vh;
-    font-family: 'Helvetica Neue', sans-serif;
-    color: #333;
-    background-color: #f4f4f9;
-  }
-  
-  /* Header styling */
-  .header {
-    background: linear-gradient(135deg, #6c63ff, #1f1c4a);
-    max-height: 20vh;
-    padding: 5vh 5vh;
-    color: white;
-    text-align: center;
-  }
-  
-  /* Body section */
-  .body {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 40px 20px;
-    background-color: #fff;
-  }
-  
-  /* User list styling */
-  .userlist {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  /* User button styling */
-  .user {
-    width: 80%;
-    padding: 20px;
-    background: #f0f0ff;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    margin-bottom: 20px;
-  }
-  
-  .user:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  .user h2 {
-    margin-bottom: 10px;
-  }
-  
-  .user p {
-    margin: 0;
-  }
-  
-  /* Settings button styling */
-  .settings-btn {
-    width: 80%;
-    padding: 15px;
-    background: #1f1c4a;
-    color: white;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-  
-  .settings-btn:hover {
-    background-color: #6c63ff;
-    transform: translateY(-5px);
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Styling the App container */
+.app {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 100vh;
+  font-family: 'Helvetica Neue', sans-serif;
+  color: #333;
+  background-color: #f4f4f9;
+}
+
+/* Header styling */
+.header {
+  background: linear-gradient(135deg, #6c63ff, #1f1c4a);
+  max-height: 20vh;
+  padding: 5vh 5vh;
+  color: white;
+  text-align: center;
+  position: relative;
+}
+
+/* Hamburger Menu Styling (now on the left) */
+.hamburger {
+  position: absolute;
+  top: 15px;
+  left: 20px;  /* Move to the left */
+  font-size: 30px;
+  cursor: pointer;
+  color: white;
+}
+
+/* Side Menu Styling */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -250px;  /* Initially hidden off-screen */
+  width: 250px;
+  height: 100%;
+  background-color: #1f1c4a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 50px;
+  transition: left 0.3s ease;  /* Sliding effect */
+  z-index: 100;  /* Ensure it is above other content */
+}
+
+/* When the menu is open */
+.side-menu.open {
+  left: 0;  /* Slide in from the left */
+}
+
+/* Close button styling */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  left: 20px;  /* Place on the left inside the menu */
+  font-size: 30px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* Menu items styling */
+.menu-item {
+  padding: 15px 20px;
+  border: none;
+  background-color: transparent;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Body section */
+.body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px;
+  background-color: #fff;
+}
+
+/* User list styling */
+.userlist {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+/* User button styling */
+.user {
+  width: 80%;
+  padding: 20px;
+  background: #f0f0ff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.user:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Settings button styling */
+.settings-btn {
+  width: 80%;
+  padding: 15px;
+  background: #1f1c4a;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.settings-btn:hover {
+  background-color: #6c63ff;
+  transform: translateY(-5px);
+}

@@ -22,30 +22,7 @@ const db = getFirestore(app);
 const firestore = getFirestore(app);
 
 
-export var userList = [];
-{
-  const q = query(collection(firestore, "users"));
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach(i => userList.push(i.data()));
-  userList = userList.map((user) => {
-      const { username, groupsInvolved } = user;
-      console.log(username, groupsInvolved);
-      return {
-        username,
-        groupsInvolved
-      };
-    });
-}
 
-export const addUser = async (username) => {
-  try {
-    await setDoc(doc(firestore, "users", uid+vid), {
-      username: username,
-      vid: vid
-    });
-    console.log("Successfully saved User to database.");
-  } catch (error) {
-      console.error(error);
-  }
-}
+
+
 

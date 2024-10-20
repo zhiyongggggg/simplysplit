@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { useState, useEffect } from 'react';
 import { db, collection, getDocs } from './components/firebase';  
 import Login from './components/Login';
+import Register from './components/Register';
 import Home from './components/Home';
 
 function App() {
@@ -17,6 +18,10 @@ function App() {
         <Route
           path="/login"
           element={<Login onLogin={() => setIsAuthenticated(true)} />}
+        />
+        <Route
+          path="/register"
+          element={<Register />}
         />
         <Route
           path="/home"

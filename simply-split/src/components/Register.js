@@ -1,51 +1,55 @@
 import { useState } from 'react';
-import { auth, provider, signInWithPopup } from './firebase'; 
+import { auth } from './firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom'; 
-import './Login.css';
+import './Register.css';
 
-function Login({ onLogin }) {
-  const [username, setUsername] = useState('');
+function Register() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [cpassword, setcPassword] = useState('');
-  const navigate = useNavigate(); // Initialize navigate
+  const [cpassword, setCPassword] = useState('');
+  const [error, setError] = useState('');  
+  const navigate = useNavigate(); 
 
-  // Function for normal login
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Normal login logic goes here
-    onLogin();  // Assuming login is successful
-  };
+  // Function for handling registration
+  const handleSubmit = async (event) => {
+    event.preventDefault();  
+    setError(''); 
 
-  // Function for Google login
-  const handleGoogleLogin = async () => {
+    // Check if passwords match
+    if (password !== cpassword) {
+      setError('Passwords do not match!');
+      return;
+    }
+
     try {
-      const result = await signInWithPopup(auth, provider);
-      console.log(result.user); // User info returned by Google
-      onLogin();  // Set user as authenticated
+      // If passwords match, try to create the user
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate('/login');
     } catch (error) {
-      console.error('Google login error', error);
+      console.error('Registration error', error);
+      setError('Failed to create an account. Please try again.');
     }
   };
 
-  // Function to navigate to the register page
-  const handleRegisterRedirect = () => {
-    navigate('/register'); // Redirect to the register page
+  // Function to navigate to the login page
+  const handleLoginRedirect = () => {
+    navigate('/login'); 
   };
 
   return (
-    <div className="login">
+    <div className="register">
       <h1>Register an Account</h1>
       <form onSubmit={handleSubmit}>
         <label>
-          Username:
+          Email:
           <input 
             type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
             required 
           />
         </label>
-        <br />
         <label>
           Password:
           <input 
@@ -55,26 +59,26 @@ function Login({ onLogin }) {
             required 
           />
         </label>
-        <br />
         <label>
           Confirm Password:
           <input 
             type="password" 
             value={cpassword} 
-            onChange={(e) => setPassword(e.target.value)} 
+            onChange={(e) => setCPassword(e.target.value)} 
             required 
           />
+          {/* Error message if passwords don't match */}
+          {error && <p className="error-message">{error}</p>}
         </label>
-        <p className="register-link">
-          Already have an account? 
-          <span onClick={handleRegisterRedirect} className="clickable"> Login here!</span>
-        </p>
-        <button type="submit">Register</button>
-      </form>
-      
 
+        <button type="submit">Register</button>
+        <p className="register-link">
+          Already have an account? Login
+          <span onClick={handleLoginRedirect} className="clickable"> here!</span>
+        </p>
+      </form>
     </div>
   );
 }
 
-export default Login;
+export default Register;
