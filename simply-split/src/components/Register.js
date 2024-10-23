@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { auth } from './firebase';
+import { auth, db } from './firebase'; // Import your Firebase Firestore instance
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { collection, addDoc } from 'firebase/firestore'; // Firestore functions
 import { useNavigate } from 'react-router-dom'; 
 import './Register.css';
 
@@ -9,11 +10,13 @@ function Register() {
   const [password, setPassword] = useState('');
   const [cpassword, setCPassword] = useState('');
   const [error, setError] = useState('');  
+  const [isLoading, setIsLoading] = useState(false); 
   const navigate = useNavigate(); 
 
   // Function for handling registration
   const handleSubmit = async (event) => {
     event.preventDefault();  
+    setIsLoading(true)
     setError(''); 
 
     // Check if passwords match
@@ -24,10 +27,21 @@ function Register() {
 
     try {
       // If passwords match, try to create the user
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user; // Get the user object
+
+      // Create a corresponding entry in the users database
+      await addDoc(collection(db, 'users'), {
+        uid: user.uid, // User ID
+        groupsInvolved: [],
+        username: email,
+        // Add any other user-related fields you want here
+      });
+
       navigate('/login');
     } catch (error) {
       console.error('Registration error', error);
+      setIsLoading(false);
       setError('Failed to create an account. Please try again.');
     }
   };
@@ -71,7 +85,9 @@ function Register() {
           {error && <p className="error-message">{error}</p>}
         </label>
 
-        <button type="submit">Register</button>
+        <button type="submit">
+          {isLoading ? 'Loading...' : 'Register'}
+        </button>
         <p className="register-link">
           Already have an account? Login
           <span onClick={handleLoginRedirect} className="clickable"> here!</span>

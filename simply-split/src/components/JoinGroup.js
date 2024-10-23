@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAppNavigation } from './navigation';
 import Sidebar from './Sidebar';
 
-function Home() {
+function JoinGroup() {
   const [users, setUsers] = useState([]); // State to store users
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Toggle state for the menu
 
@@ -13,6 +13,7 @@ function Home() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
 
   return (
     <div className="app">
@@ -52,4 +53,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default JoinGroup;
