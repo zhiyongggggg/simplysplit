@@ -8,6 +8,7 @@ import Home from './components/Home';
 import CreateGroup from './components/CreateGroup';
 import JoinGroup from './components/JoinGroup';
 import Settings from './components/Settings';
+import GroupInfo from './components/GroupInfo';
 
 function App() {
   const [users, setUsers] = useState([]);  // State to store users
@@ -40,6 +41,10 @@ function App() {
         <Route
           path="/settings"
           element={isAuthenticated ? <Settings users={users} /> : <Navigate to="/login" />}
+        />
+        <Route 
+          path="/group/:groupName" 
+          element={isAuthenticated ? <GroupInfo users={users} /> : <Navigate to="/login"/>}
         />
         {/* Default route */}
         <Route path="*" element={<Navigate to="/login" />} />

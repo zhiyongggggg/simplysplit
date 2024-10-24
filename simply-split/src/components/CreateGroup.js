@@ -2,14 +2,15 @@ import './LoggedIn.css';
 import { useState, useEffect } from 'react';
 import { useAppNavigation } from './navigation';
 import Sidebar from './Sidebar';
-import { db, auth } from './firebase'; // Import your Firebase Firestore instance
+import { db, auth, updateDoc, doc, arrayUnion } from './firebase'; // Import your Firebase Firestore instance
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'; // Firestore functions
 
 function CreateGroup() {
-  const [groupName, setGroupName] = useState(''); // State for group name input
-  const [groupTag, setGroupTag] = useState(''); // State for generated group tag
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Toggle state for the menu
-  const [isLoading, setIsLoading] = useState(false); // Loading state for button
+  const [groupName, setGroupName] = useState('');
+  const [lastCreatedGroupName, setLastCreatedGroupName] = useState('');
+  const [groupTag, setGroupTag] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { handleHome, handleJoinGroup, handleSettings, handleLogout } = useAppNavigation();
 
@@ -32,7 +33,7 @@ function CreateGroup() {
   const handleCreateGroup = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     if (groupName.trim() !== '') {
       let generatedTag;
       let isUnique = false;
@@ -49,13 +50,24 @@ function CreateGroup() {
 
       // Once we have a unique groupName + groupTag, add it to Firestore
       try {
-        await addDoc(groupsCollection, {
-          groupID: groupName + generatedTag,
+        const groupDocRef = await addDoc(groupsCollection, {
+          groupID: groupName + "#" + generatedTag,
           createdAt: new Date(),
           members: [userID],
         });
+
         setGroupTag(generatedTag);
+        setLastCreatedGroupName(groupName); // Store the created group name
         console.log(`Group Created: ${groupName}#${generatedTag}`);
+
+        // Clear the input field after successful creation
+        setGroupName('');
+
+        const userDocRef = doc(db, 'users', userID); // Assuming 'users' is your users collection
+        await updateDoc(userDocRef, {
+          groupsInvolved: arrayUnion(groupDocRef.id) // Use arrayUnion to add group ID to the array
+        });
+        
       } catch (error) {
         console.error('Error creating group:', error);
       } finally {
@@ -63,6 +75,7 @@ function CreateGroup() {
       }
     }
   };
+
 
   // Function to toggle menu visibility
   const toggleMenu = () => {
@@ -107,7 +120,8 @@ function CreateGroup() {
             id="group-name"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            placeholder="Enter group name"
+            placeholder="Enter group name..."
+            autoComplete="off"
             required
           />
           <button type="submit" className="create-btn" disabled={isLoading}>
@@ -116,7 +130,7 @@ function CreateGroup() {
         </form>
         {groupTag && (
           <p className="group-info">
-            Group Created: <strong>{groupName}#{groupTag}</strong>
+            Group <strong>{lastCreatedGroupName}#{groupTag}</strong> has been successful created.
           </p>
         )}
       </div>

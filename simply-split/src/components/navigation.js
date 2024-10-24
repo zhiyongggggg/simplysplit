@@ -29,6 +29,14 @@ export const useAppNavigation = () => {
     }
   };
 
+  const handleGroupInfo = (groupName, groupId) => {
+    try {
+      navigate(`/group/${groupName}`, { state: { groupId } }); 
+    } catch (error) {
+      console.error('Error navigating to Group Info Page:', error);
+    }
+  };  
+
   const handleSettings = async () => {
     try {
       navigate('/settings');
@@ -50,6 +58,7 @@ export const useAppNavigation = () => {
     handleHome,
     handleJoinGroup,
     handleCreateGroup,
+    handleGroupInfo,
     handleSettings,
     handleLogout,
   };

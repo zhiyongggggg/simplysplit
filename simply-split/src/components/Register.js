@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { auth, db } from './firebase'; // Import your Firebase Firestore instance
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore'; // Firestore functions
+import { doc, setDoc } from 'firebase/firestore'; // Firestore functions
 import { useNavigate } from 'react-router-dom'; 
 import './Register.css';
 
@@ -31,11 +31,9 @@ function Register() {
       const user = userCredential.user; // Get the user object
 
       // Create a corresponding entry in the users database
-      await addDoc(collection(db, 'users'), {
-        uid: user.uid, // User ID
+      await setDoc(doc(db, 'users', user.uid), {
         groupsInvolved: [],
         username: email,
-        // Add any other user-related fields you want here
       });
 
       navigate('/login');
