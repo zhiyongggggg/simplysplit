@@ -72,7 +72,7 @@ function Home() {
         ) : (
           <div className="grouplist">
             {groups.map((group) => (
-              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupID)}>
+              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupID, group.id)}>
                 <h2>{group.groupID}</h2> {/* Display group name or any other detail */}
               </button>
             ))}

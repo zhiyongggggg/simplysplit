@@ -1,0 +1,162 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.body {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Loading state styling */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Full height to center vertically */
+  font-size: 24px;
+  color: #6c63ff;
+}
+
+/* Error message styling */
+.error {
+  text-align: center;
+  font-size: 20px;
+  color: red;
+  margin-top: 20px;
+}
+
+.floating-navbar {
+  position: fixed;
+  bottom: 15px;
+  width: 90%;
+  max-width: 600px;
+  left: 0;  /* Set the left edge to the far left */
+  right: 0; /* Set the right edge to the far right */
+  margin: 0 auto; /* Automatically center it */
+  background-color: #1f1c4a;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 18px;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}  
+
+.floating-navbar button {
+  background-color: #1f1c4a;
+  color: white;
+  border: none;
+  width: 33%;
+  font-size: 14px;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 8px;
+}
+
+.floating-navbar button:hover {
+  background-color: #6c63ff; /* Softer, appealing color */
+  transform: scale(1.02); /* Slight scaling effect */
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); /* Slight shadow for a "lifted" effect */
+}
+
+.floating-navbar button:active {
+  transform: scale(1); /* Reset scaling on click */
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15); /* Reduced shadow when pressed */
+}
+
+/* Add blur effect to the background content only when modal is open */
+.blur-background {
+  filter: blur(5px);
+  pointer-events: none; /* Disable interactions with background content */
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200; /* Ensure modal is above other content */
+}
+
+/* Modal Styling */
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Close button styling */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: black;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+/* Header styling */
+.header {
+  padding: 20px;
+  background-color: #1f1c4a;
+  color: white;
+  text-align: center;
+}
+
+/* Form group styling */
+.form-group {
+  margin: 15px 0;
+}
+
+/* Input field styling */
+input[type="number"] {
+  margin-left: 10px;
+  width: 60px; /* Width for the input box */
+}
+
+/* Submit button styling */
+.submit-btn {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.submit-btn:hover {
+  background-color: #5a52e0; /* Darker shade on hover */
+}
+
+.payer-selection,
+.people-involved-selection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 5px;
+  border: 1px solid #ccc; /* Border around each selection */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background */
+}
