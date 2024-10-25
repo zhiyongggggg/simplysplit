@@ -11,6 +11,7 @@ function GroupInfo() {
   const location = useLocation(); 
   const groupId = location.state?.groupId; 
   const [groupData, setGroupData] = useState(null);
+  const [usernames, setUsernames] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,17 +20,33 @@ function GroupInfo() {
   const [totalAmount, setTotalAmount] = useState(0);
   const [remainingAmount, setRemainingAmount] = useState(0);
   const [unsettledBorrowedAmount, setUnsettledBorrowedAmount] = useState(0);
-  const [taxRate, setTaxRate] = useState(0); // New state for tax rate
+  const [taxRate, setTaxRate] = useState(0); 
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
 
+
+  /* Backend logic */
+
+  //Fetch group details & usernames of members.
   useEffect(() => {
     const fetchGroupData = async () => {
       if (groupId) { 
-        const groupDocRef = doc(db, 'groups', groupId);
-        const groupDoc = await getDoc(groupDocRef);
+        const groupDoc = await getDoc(doc(db, 'groups', groupId));
         if (groupDoc.exists()) {
           setGroupData({ id: groupDoc.id, ...groupDoc.data() });
+
+          const members = groupDoc.data().members;
+          const fetchedUsernames = {};
+          
+          for (const memberId of members) {
+            const userDoc = await getDoc(doc(db, 'users', memberId)); 
+            if (userDoc.exists()) {
+              fetchedUsernames[memberId] = userDoc.data().username.split('@')[0];
+            } else {
+              fetchedUsernames[memberId] = "Unknown User"; 
+            }
+          }
+          setUsernames(fetchedUsernames); 
         } else {
           console.error('Group not found');
         }
@@ -38,7 +55,7 @@ function GroupInfo() {
       }
       setIsLoading(false);
     };
-
+  
     fetchGroupData();
   }, [groupId]);
 
@@ -52,15 +69,15 @@ function GroupInfo() {
     setUnsettledBorrowedAmount(totalAmount - totalPeopleAmount);
   }, [peopleAmounts, totalAmount]);
 
-  const handleTransactionSubmit = () => {
-    console.log('Payers:', payerAmounts);
-    console.log('People Involved:', peopleAmounts);
-    handleCloseModal();
+  /* Open and close side bar */
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
+  /* Open and close modal */
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    setUnsettledBorrowedAmount(totalAmount); // Initialize unsettledBorrowedAmount
+    setUnsettledBorrowedAmount(totalAmount); 
   };
 
   const handleCloseModal = () => {
@@ -70,11 +87,11 @@ function GroupInfo() {
     setTotalAmount(0);
     setRemainingAmount(0);
     setUnsettledBorrowedAmount(0);
-    setTaxRate(0); // Reset tax rate when modal is closed
+    setTaxRate(0);
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleTransactionSubmit = () => {
+    handleCloseModal();
   };
 
   const handlePayerChange = (payerId, value) => {
@@ -177,29 +194,30 @@ function GroupInfo() {
               />
             </div>
 
+            {/* Payer Section */}
             <h3>Payer:</h3>
             {groupData.members.map((member) => (
               <div key={member} className="payer-selection">
-                <span>{member}</span>
+                <span>{usernames[member] || member}</span> {/* Display username or fallback to ID */}
                 <input
                   type="number"
                   min="0"
-                  value={payerAmounts[member] || '0'} // Use the state value here
+                  value={payerAmounts[member] || '0'}
                   onChange={(e) => handlePayerChange(member, e.target.value)}
                   style={{ marginLeft: 'auto' }}
                 />
               </div>
             ))}
-            <div>Unsettled Payment Amount: {remainingAmount}</div>
 
+            {/* People Involved Section */}
             <h3>People Involved:</h3>
             {groupData.members.map((member) => (
               <div key={member} className="people-involved-selection">
-                <span>{member}</span>
+                <span>{usernames[member] || member}</span> {/* Display username or fallback to ID */}
                 <input
                   type="number"
                   min="0"
-                  value={peopleAmounts[member] || '0'} // Use the state value here
+                  value={peopleAmounts[member] || '0'}
                   onChange={(e) => handlePeopleChange(member, e.target.value)}
                   style={{ marginLeft: 'auto' }}
                 />
