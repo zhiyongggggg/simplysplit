@@ -15,11 +15,11 @@ function GroupInfo() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [payerAmounts, setPayerAmounts] = useState({});
-  const [peopleAmounts, setPeopleAmounts] = useState({});
+  const [payerAmounts, setPayerAmounts] = useState({}); // Amount of money paid by each user
+  const [peopleAmounts, setPeopleAmounts] = useState({}); // Amount of money to be paid by each user
   const [totalAmount, setTotalAmount] = useState(0);
   const [remainingAmount, setRemainingAmount] = useState(0);
-  const [unsettledBorrowedAmount, setUnsettledBorrowedAmount] = useState(0);
+  const [unsettledAmount, setUnsettledAmount] = useState(0);
   const [taxRate, setTaxRate] = useState(0); 
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
@@ -55,18 +55,19 @@ function GroupInfo() {
       }
       setIsLoading(false);
     };
-  
     fetchGroupData();
   }, [groupId]);
 
+  // Calculating the remaining amount
   useEffect(() => {
-    const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
-    setRemainingAmount(totalAmount - totalPayerAmount);
+    const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0); // Loops through the values of the dictionary (object) and sum them up, storing the number under acc,
+    setRemainingAmount(totalAmount - totalPayerAmount);                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
   }, [payerAmounts, totalAmount]);
 
+  // Calculating the unsettled amount
   useEffect(() => {
     const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
-    setUnsettledBorrowedAmount(totalAmount - totalPeopleAmount);
+    setUnsettledAmount(totalAmount - totalPeopleAmount);
   }, [peopleAmounts, totalAmount]);
 
   /* Open and close side bar */
@@ -77,7 +78,7 @@ function GroupInfo() {
   /* Open and close modal */
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    setUnsettledBorrowedAmount(totalAmount); 
+    setUnsettledAmount(totalAmount); 
   };
 
   const handleCloseModal = () => {
@@ -86,38 +87,39 @@ function GroupInfo() {
     setPeopleAmounts({});
     setTotalAmount(0);
     setRemainingAmount(0);
-    setUnsettledBorrowedAmount(0);
+    setUnsettledAmount(0);
     setTaxRate(0);
+  };
+
+  const handlePayerChange = (payerId, value) => {
+    setPayerAmounts((prev) => ({ ...prev, [payerId]: value })); // prev holds the previous dictionary before change, the function essentially copy paste and edits the specific member's value
+  };                                                            // there is a need to copy paste rather than just changing because by spreading prev into a new object, a new state is created, triggering useEffect
+
+  const handlePeopleChange = (personId, value) => {
+    setPeopleAmounts((prev) => ({ ...prev, [personId]: value }));
   };
 
   const handleTransactionSubmit = () => {
     handleCloseModal();
   };
 
-  const handlePayerChange = (payerId, value) => {
-    setPayerAmounts((prev) => ({ ...prev, [payerId]: value }));
-  };
-
-  const handlePeopleChange = (personId, value) => {
-    setPeopleAmounts((prev) => ({ ...prev, [personId]: value }));
-  };
 
   const splitEqually = () => {
-    const peopleInvolved = Object.keys(peopleAmounts).filter(member => peopleAmounts[member] === '0');
-    
+    const peopleInvolved = groupData.members.filter(
+      member => !peopleAmounts[member] || peopleAmounts[member] == 0
+    );
     if (peopleInvolved.length === 0) {
       return; // No one has 0 input, exit the function
     }
 
-    const splitAmount = (remainingAmount / peopleInvolved.length).toFixed(2);
+    const splitAmount = (unsettledAmount / peopleInvolved.length).toFixed(2);
     const updatedAmounts = { ...peopleAmounts };
 
     // Update the amounts for people involved who have 0
     peopleInvolved.forEach(member => {
       updatedAmounts[member] = splitAmount; // Set the calculated split amount
     });
-
-    setPeopleAmounts(updatedAmounts); // Update state
+    setPeopleAmounts(updatedAmounts);
   };
 
   const applyTax = () => {
@@ -128,8 +130,7 @@ function GroupInfo() {
     for (const member in peopleAmounts) {
       updatedAmounts[member] = (parseFloat(peopleAmounts[member] || 0) * taxMultiplier).toFixed(2);
     }
-
-    setPeopleAmounts(updatedAmounts); // Update state with new amounts
+    setPeopleAmounts(updatedAmounts);
   };
 
   if (isLoading) {
@@ -190,7 +191,7 @@ function GroupInfo() {
                 id="total-amount"
                 value={totalAmount}
                 onChange={(e) => setTotalAmount(e.target.value)}
-                placeholder="Enter total amount"
+                onFocus={(e) => e.target.select()}
               />
             </div>
 
@@ -198,33 +199,36 @@ function GroupInfo() {
             <h3>Payer:</h3>
             {groupData.members.map((member) => (
               <div key={member} className="payer-selection">
-                <span>{usernames[member] || member}</span> {/* Display username or fallback to ID */}
+                <span>{usernames[member]}</span> 
                 <input
                   type="number"
                   min="0"
-                  value={payerAmounts[member] || '0'}
+                  value={payerAmounts[member] || 0}
                   onChange={(e) => handlePayerChange(member, e.target.value)}
+                  onFocus={(e) => e.target.select()}
                   style={{ marginLeft: 'auto' }}
                 />
               </div>
             ))}
+            <div>Remaining Amount: {remainingAmount}</div>
 
             {/* People Involved Section */}
             <h3>People Involved:</h3>
             {groupData.members.map((member) => (
               <div key={member} className="people-involved-selection">
-                <span>{usernames[member] || member}</span> {/* Display username or fallback to ID */}
+                <span>{usernames[member]}</span> 
                 <input
                   type="number"
                   min="0"
-                  value={peopleAmounts[member] || '0'}
+                  value={peopleAmounts[member] || 0}
                   onChange={(e) => handlePeopleChange(member, e.target.value)}
+                  onFocus={(e) => e.target.select()}
                   style={{ marginLeft: 'auto' }}
                 />
               </div>
             ))}
 
-            <div>Unsettled Borrowed Amount: {unsettledBorrowedAmount}</div>
+            <div>Unsettled Borrowed Amount: {unsettledAmount}</div>
             
             <div className="form-group">
               <label htmlFor="tax-rate">Tax Rate (%):</label>
@@ -233,12 +237,12 @@ function GroupInfo() {
                 id="tax-rate"
                 value={taxRate}
                 onChange={(e) => setTaxRate(e.target.value)}
-                placeholder="Enter tax rate"
+                onFocus={(e) => e.target.select()}
               />
             </div>
-            <button className="apply-tax-btn" onClick={applyTax}>Apply Tax</button>
+            <button className="function-btn" onClick={applyTax}>Apply Tax</button>
 
-            <button className="split-btn" onClick={splitEqually}>Split Equally</button>
+            <button className="function-btn" onClick={splitEqually}>Split Equally</button>
 
             <button className="submit-btn" onClick={handleTransactionSubmit}>Submit</button>
           </div>

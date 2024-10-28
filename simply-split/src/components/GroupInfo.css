@@ -132,9 +132,25 @@ input[type="number"] {
   width: 60px; /* Width for the input box */
 }
 
+.function-btn {
+  background-color: #837dff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.function-btn:hover {
+  background-color: #5a52e0; /* Darker shade on hover */
+}
+
 /* Submit button styling */
 .submit-btn {
-  background-color: #6c63ff;
+  background-color: #5b53ff;
   color: white;
   border: none;
   padding: 10px 20px;
