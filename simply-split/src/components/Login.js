@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { auth, googleProvider } from './firebase' 
-import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth'; 
+import { auth } from './firebase' 
+import { signInWithEmailAndPassword } from 'firebase/auth'; 
 import { useNavigate } from 'react-router-dom'; 
 import './Login.css';
 
@@ -19,22 +19,11 @@ function Login({ onLogin }) {
       // Sign in user with Firebase using email and password
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log('User logged in:', userCredential.user);
-      onLogin();
+      onLogin(userCredential.user.uid);
       navigate('/home');
     } catch (error) {
       console.error('Login error', error);
       setError('Invalid email or password. Please try again.');
-    }
-  };
-
-  // Function for Google login
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-      navigate('/home');
-    } catch (error) {
-      console.error('Google login error', error);
-      setError('Login failed. Please try again.');
     }
   };
 
@@ -72,10 +61,6 @@ function Login({ onLogin }) {
           <span onClick={handleRegisterRedirect} className="clickable"> here!</span>
         </p>
         <button type="submit">Login</button>
-        <div className="separator">OR</div>
-        <button onClick={handleGoogleLogin}>
-          Login with Google
-        </button>
       </form>
       
 
