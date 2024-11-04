@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom'; 
-import { db, auth } from './firebase'; 
+import { db } from './firebase'; 
 import { useAppNavigation } from './navigation';
 import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, arrayRemove, arrayUnion, FieldValue } from 'firebase/firestore'; // Firestore functions
 
@@ -12,6 +12,7 @@ function GroupInfo() {
   const { groupName } = useParams(); 
   const location = useLocation(); 
   const groupId = location.state?.groupId; 
+  const [groupDoc, setGroupDoc] = useState(null);
   const [groupData, setGroupData] = useState(null);
   const [usernames, setUsernames] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -31,15 +32,33 @@ function GroupInfo() {
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
 
 
-  /* Backend logic */
-  //Fetch group details & usernames of members.
-  const fetchGroupData = async () => {
-    if (groupId) { 
+  {/* ============ Fetch group document ============ */}
+  const fetchGroupDoc = async () => {
+    try {
       const groupDoc = await getDoc(doc(db, 'groups', groupId));
       if (groupDoc.exists()) {
+        setGroupDoc(groupDoc); // Store all group data in state
+      } else {
+        console.error('Group not found');
+      }
+    } catch (error) {
+      console.error('Error fetching group ref:', error);
+    }
+  };
+  {/* ============ Calling group document ============ */}
+  useEffect(() => {
+    fetchGroupDoc();
+  }, [groupId]);
+
+
+  {/* ============ Fetch group data and usernames ============ */}
+  const fetchGroupData = async () => {
+    if (groupId) { 
+      if (groupDoc) {
         setGroupData({ id: groupDoc.id, ...groupDoc.data() });
-        const fetchedRequest = groupDoc.data().requests;
+        console.log(setGroupData);
         const members = groupDoc.data().members;
+        const fetchedRequest = groupDoc.data().requests;
         const fetchedUsernames = {};
         
         for (const memberId of members) {
@@ -65,14 +84,15 @@ function GroupInfo() {
     } else {
       console.error('No groupId provided');
     }
-    setIsLoading(false);
   };
-
+  {/* ============ Calling fetch group data and usernames ============ */}
   useEffect(() => {
     fetchGroupData();
-  }, [groupId]);
-  // Fetch transactions.
-  const fetchTransactions = async () => {  // Move this function outside of useEffect
+  }, [groupDoc]);
+
+
+  {/* ============ Fetch group transactions ============ */}
+  const fetchTransactions = async () => { 
     const transactionsQuery = query(collection(db, 'transactions'), where('groupID', '==', groupId));
   
     try {
@@ -83,7 +103,6 @@ function GroupInfo() {
       }));
       fetchedTransactions.sort((a, b) => b.transactionTime.toDate() - a.transactionTime.toDate());
   
-      console.log('Fetched Transactions:', fetchedTransactions);
       setTransactions(fetchedTransactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -91,25 +110,33 @@ function GroupInfo() {
       setIsLoading(false); 
     }
   };
+  {/* ============ Calling fetch transaction ============ */}
   useEffect(() => {
     fetchTransactions();
   }, [groupId]);
-  // Calculating the remaining amount
+
+
+  {/* ============ Updating the "Remaining Amount" ============ */}
   useEffect(() => {
     const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0); // Loops through the values of the dictionary (object) and sum them up, storing the number under acc,
     setRemainingAmount(totalAmount - totalPayerAmount);                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
   }, [payerAmounts, totalAmount]);
-  // Calculating the unsettled amount
+
+
+  {/* ============ Updating the "Unsettled Amount" ============ */}
   useEffect(() => {
     const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
     setUnsettledAmount(totalAmount - totalPeopleAmount);
   }, [peopleAmounts, totalAmount]);
-  /* Open and close side bar */
+
+
+  {/* ============ Toggle Menu ============ */}
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  /* Open and close modal */
+
+  {/* ============ Toggle Modal ============ */}
   const handleOpenAddTransactionModal = () => {
     setIsAddTransactionModalOpen(true);
     setUnsettledAmount(totalAmount); 
@@ -136,77 +163,26 @@ function GroupInfo() {
   const handleCloseSettingsModal = () => {
     setIsSettingsModalOpen(false);
   };
+
+
+  {/* ============ Updating Payer and People Amount ============ */}
   const handlePayerChange = (payerId, value) => {
     setPayerAmounts((prev) => ({ ...prev, [payerId]: value })); // prev holds the previous dictionary before change, the function essentially copy paste and edits the specific member's value
   };                                                            // there is a need to copy paste rather than just changing because by spreading prev into a new object, a new state is created, triggering useEffect
   const handlePeopleChange = (personId, value) => {
     setPeopleAmounts((prev) => ({ ...prev, [personId]: value }));
   };
+
+
+  {/* ============ Submit Transaction ============ */}
   const handleTransactionSubmit = async () => {
-    await handleCreateTransaction(); // Call the function to create a transaction
-    await fetchTransactions(); // Fetch transactions again after creating a new transaction
+    await handleCreateTransaction();
+    await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
     handleCloseModal();
   };
-  const handleAcceptRequest = async (request) => {
-    try {
-      setIsLoading(true); 
-      const groupDoc = await getDoc(doc(db, 'groups', groupId));
-      await updateDoc(groupDoc.ref, {
-        requests: arrayRemove(request),
-      });
-  
-      await updateDoc(groupDoc.ref, {
-        members: arrayUnion(request),
-      });
-      await fetchGroupData();
-      console.log(`Accepted request from: ${usernames[request]}`);
-      setIsLoading(false); 
-    } catch (error) {
-      console.error('Error accepting request:', error);
-    }
-  };
-  
-  const handleRejectRequest = async (request) => {
-    try {
-      setIsLoading(true); 
-      const groupDoc = await getDoc(doc(db, 'groups', groupId));
-      await updateDoc(groupDoc.ref, {
-        requests: arrayRemove(request),
-      });
-      await fetchGroupData();
-      console.log(`Rejected request from: ${usernames[request]}`);
-      setIsLoading(false); 
-    } catch (error) {
-      console.error('Error rejecting request:', error);
-    }
-  };
-  
-  const splitEqually = () => {
-    const peopleInvolved = groupData.members.filter(
-      member => !peopleAmounts[member] || peopleAmounts[member] == 0
-    );
-    if (peopleInvolved.length === 0) {
-      return; // No one has 0 input, exit the function
-    }
-    const splitAmount = (unsettledAmount / peopleInvolved.length).toFixed(2);
-    const updatedAmounts = { ...peopleAmounts };
-    // Update the amounts for people involved who have 0
-    peopleInvolved.forEach(member => {
-      updatedAmounts[member] = splitAmount; // Set the calculated split amount
-    });
-    setPeopleAmounts(updatedAmounts);
-  };
-  const applyTax = () => {
-    const taxMultiplier = 1 + (parseFloat(taxRate) / 100); // Convert taxRate percentage to multiplier
-    const updatedAmounts = {};
-    // Apply tax to each person involved
-    for (const member in peopleAmounts) {
-      updatedAmounts[member] = (parseFloat(peopleAmounts[member] || 0) * taxMultiplier).toFixed(2);
-    }
-    setPeopleAmounts(updatedAmounts);
-  };
 
-  // Function to handle group creation
+
+  {/* ============ Create New Transaction Entry in Firebase ============ */}
   const handleCreateTransaction = async () => {
     setIsLoading(true);
     const transactionsCollection = collection(db, 'transactions');
@@ -223,20 +199,74 @@ function GroupInfo() {
     } catch (error) {
       console.error('Error logging transaction:', error);
     } finally {
-      setIsLoading(false); // Stop loading state
+      setIsLoading(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="loading-overlay">
-        <div className="loading">Loading...</div>
-      </div>
+
+  {/* ============ Accept and Request Join Requests ============ */}
+  const handleAcceptRequest = async (request) => {
+    try {
+      setIsLoading(true); 
+      await updateDoc(groupDoc.ref, {
+        requests: arrayRemove(request),
+      });
+  
+      await updateDoc(groupDoc.ref, {
+        members: arrayUnion(request),
+      });
+      await fetchGroupData(); // Necessary to update the group data states to reflect updated requests
+      console.log(`Accepted request from: ${usernames[request]}`);
+      setIsLoading(false); 
+    } catch (error) {
+      console.error('Error accepting request:', error);
+    }
+  };
+  const handleRejectRequest = async (request) => {
+    try {
+      setIsLoading(true); 
+      const groupDoc = await getDoc(doc(db, 'groups', groupId));
+      await updateDoc(groupDoc.ref, {
+        requests: arrayRemove(request),
+      });
+      await fetchGroupData();
+      console.log(`Rejected request from: ${usernames[request]}`);
+      setIsLoading(false); 
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+    }
+  };
+  
+  {/* ============ Split Unsettled Sum Equally ============ */}
+  const splitEqually = () => {
+    const peopleInvolved = groupData.members.filter(
+      member => !peopleAmounts[member] || peopleAmounts[member] == 0
     );
-  }  
-  if (!groupData) {
-    return <div className="error">Group not found.</div>;
-  }
+    if (peopleInvolved.length === 0) {
+      return; // No one has 0 input, exit the function
+    }
+    const splitAmount = (unsettledAmount / peopleInvolved.length).toFixed(2);
+    const updatedAmounts = { ...peopleAmounts };
+    // Update the amounts for people involved who have 0
+    peopleInvolved.forEach(member => {
+      updatedAmounts[member] = splitAmount; // Set the calculated split amount
+    });
+    setPeopleAmounts(updatedAmounts);
+  };
+
+
+  {/* ============ Apply Tax ============ */}
+  const applyTax = () => {
+    const taxMultiplier = 1 + (parseFloat(taxRate) / 100);
+    const updatedAmounts = {};
+    // Apply tax to each person involved
+    for (const member in peopleAmounts) {
+      updatedAmounts[member] = (parseFloat(peopleAmounts[member] || 0) * taxMultiplier).toFixed(2);
+    }
+    setPeopleAmounts(updatedAmounts);
+  };
+
+
   return (
     <div className="groupinfo">
       <div className={`content ${isAddTransactionModalOpen ? 'blur-background' : ''}`}>
@@ -258,39 +288,47 @@ function GroupInfo() {
           handleLogout={handleLogout}
         />
         <div className="body">
-          <h2>{groupData.groupID}</h2>
-          
-          <div>
-            {transactions.length > 0 ? (
-              transactions.map((transaction, index) => (
-                <div key={index} className="transaction">
-                  <h3>{transaction.description}</h3>
-                  <p>Total Amount: ${transaction.totalAmount}</p>
-                  {/* Display each payer on a new line */}
-                  <h4>Payer(s):</h4>
-                  {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
-                    <p key={idx}>{usernames[payerID]}: ${amount}</p>
-                  ))}
-                  {/* Display each person involved on a new line */}
-                  <h4>People Involved:</h4>
-                  {Object.entries(transaction.people).map(([personID, amount], idx) => (
-                    <p key={idx}>{usernames[personID]}: ${amount}</p>
-                  ))}
-                  <p>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
-                </div>
-              ))
-            ) : (
-              <p>No transactions available.</p>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="loading-spinner">Loading...</div>
+          ) : !groupData ? (
+            <div className="error">Group not found.</div>
+          ) : (
+            <div>
+              <h2>{groupData.groupName}</h2>
+              <div>
+                {transactions.length > 0 ? (
+                  transactions.map((transaction, index) => (
+                    <div key={index} className="transaction">
+                      <h3>{transaction.description}</h3>
+                      <p>Total Amount: ${transaction.totalAmount}</p>
+                      {/* Display each payer on a new line */}
+                      <h4>Payer(s):</h4>
+                      {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
+                        <p key={idx}>{usernames[payerID]}: ${amount}</p>
+                      ))}
+                      {/* Display each person involved on a new line */}
+                      <h4>People Involved:</h4>
+                      {Object.entries(transaction.people).map(([personID, amount], idx) => (
+                        <p key={idx}>{usernames[personID]}: ${amount}</p>
+                      ))}
+                      <p>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No transactions available.</p>
+                )}
+              </div>
+              {/* Floating Navbar at the bottom */}
+              <div className="floating-navbar">
+                <button onClick={handleOpenAddTransactionModal}>Add Transaction</button>
+                <button onClick={handleOpenSettleUpModal}>Settle Up</button>
+                <button onClick={handleOpenSettingsModal}>Settings</button>
+              </div>
+
+            </div>
+          )}
         </div>
 
-        {/* Floating Navbar at the bottom */}
-        <div className="floating-navbar">
-          <button onClick={handleOpenAddTransactionModal}>Add Transaction</button>
-          <button onClick={handleOpenSettleUpModal}>Settle Up</button>
-          <button onClick={handleOpenSettingsModal}>Settings</button>
-        </div>
       </div>
       {/* Modal for Add Transaction */}
       {isAddTransactionModalOpen && (

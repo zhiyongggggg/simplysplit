@@ -26,7 +26,7 @@ function CreateGroup() {
 
   // Function to check if the groupName + groupTag already exists in Firestore
   const checkGroupExists = async (groupName, groupTag) => {
-    const q = query(groupsCollection, where('groupID', '==', groupName + "#" + groupTag));
+    const q = query(groupsCollection, where('groupName', '==', groupName + "#" + groupTag));
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty; // If snapshot is not empty, group exists
   };
@@ -53,9 +53,10 @@ function CreateGroup() {
       // Once we have a unique groupName + groupTag, add it to Firestore
       try {
         const groupDocRef = await addDoc(groupsCollection, {
-          groupID: groupName + "#" + generatedTag,
+          groupName: groupName + "#" + generatedTag,
           createdAt: new Date(),
           members: [userID],
+          requests: [],
         });
 
         setGroupTag(generatedTag);
@@ -98,13 +99,11 @@ function CreateGroup() {
       <div className="header">
         <h1>SimplySplit</h1>
         <p>Create your group below!</p>
-        {/* Hamburger Menu on the left */}
         <div className="hamburger" onClick={toggleMenu}>
           &#9776;
         </div>
       </div>
 
-      {/* Import the Sidebar component and pass the necessary props */}
       <Sidebar
         isMenuOpen={isMenuOpen}
         toggleMenu={toggleMenu}

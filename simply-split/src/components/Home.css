@@ -43,6 +43,13 @@
     color: #6c63ff;
 }
 
+.home .error {
+    text-align: center;
+    font-size: 20px;
+    color: red;
+    margin-top: 20px;
+}
+
 .home .grouplist {
     flex-grow: 1;
     display: flex;

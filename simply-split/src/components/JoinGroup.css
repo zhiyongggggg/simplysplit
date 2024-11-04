@@ -26,45 +26,46 @@
   color: white;
 }
 
-.joingroup .body {
-  flex-grow: 1; 
+.joingroup .join-group-form {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: start; 
+  margin: 20px 0;
 }
 
-.joingroup .group-input {
-  margin-top: 20px;
-  width: 70%;
-  max-width: 800px;
+.joingroup .join-group-form label {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.joingroup .join-group-form input {
   padding: 10px;
-  font-size: 16px;
+  max-width: 400px;
+  width: 80%;
+  margin-bottom: 20px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.joingroup .group-input:focus {
-  border-color: #6c63ff;
-  box-shadow: 0 0 8px rgba(108, 99, 255, 0.3);
+  border-radius: 5px;
+  font-size: 16px;
 }
 
 .joingroup .search-btn {
-  margin-top: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #837dff;
+  width: 80%;
+  max-width: 400px;
+  padding: 15px;
+  background-color: #1f1c4a;
   color: white;
+  border-radius: 10px;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .joingroup .search-btn:hover {
   background-color: #6c63ff;
+  transform: translateY(-5px);
 }
 
 .joingroup .error {
@@ -93,6 +94,7 @@ margin-top: 20px;
 }
 
 .joingroup .request-btn {
+  width: 150px;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: bold;

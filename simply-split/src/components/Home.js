@@ -8,13 +8,12 @@ import { db, auth } from './firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 function Home() {
-  const [groups, setGroups] = useState([]); // State to store groups
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Toggle state for the menu
-  const [isLoading, setIsLoading] = useState(true); // State for loading status
+  const [groups, setGroups] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
 
-  // Function to toggle menu visibility
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -70,12 +69,12 @@ function Home() {
         {isLoading ? (
           <div className="loading-spinner">Loading...</div> // Loading spinner
         ) : groups.length === 0 ? (
-          <p>You are not in any groups</p> // Message when no groups are found
+          <div className="error">You are not in any groups</div> // Message when no groups are found
         ) : (
           <div className="grouplist">
             {groups.map((group) => (
-              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupID, group.id)}>
-                <h2>{group.groupID}</h2> {/* Display group name or any other detail */}
+              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupName, group.id)}>
+                <h2>{group.groupName}</h2> {/* Display group name or any other detail */}
               </button>
             ))}
           </div>

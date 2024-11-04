@@ -11,10 +11,11 @@ function JoinGroup() {
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [groupName, setGroupName] = useState(''); 
   const [groupFound, setGroupFound] = useState(false);
-  const [groupInfo, setGroupInfo] = useState(null); // Changed to null for easier checks
-  const [loading, setLoading] = useState(false); // State for loading
-  const [noGroupsFound, setNoGroupsFound] = useState(false); // State for no groups found
-  const [membershipStatus, setMembershipStatus] = useState('none'); // State for membership status
+  const [groupInfo, setGroupInfo] = useState(null); 
+  const [loading, setLoading] = useState(false); 
+  const [requestLoading, setRequestLoading] = useState(false); 
+  const [noGroupsFound, setNoGroupsFound] = useState(false); 
+  const [membershipStatus, setMembershipStatus] = useState('none');
 
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout } = useAppNavigation();
 
@@ -32,7 +33,7 @@ function JoinGroup() {
       setNoGroupsFound(false); // Reset no groups found message
       try {
         const groupsRef = collection(db, 'groups');
-        const q = query(groupsRef, where('groupID', '==', groupName));
+        const q = query(groupsRef, where('groupName', '==', groupName));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
@@ -63,7 +64,7 @@ function JoinGroup() {
       } catch (error) {
         console.error('Error searching for group:', error);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false); 
       }
     } else {
       console.error('No group name provided');
@@ -73,6 +74,7 @@ function JoinGroup() {
   // Function to handle join request
   const handleRequestToJoin = async () => {
     if (groupInfo) {
+      setRequestLoading(true);
       try {
         await updateDoc(doc(db, 'groups', groupInfo.id), {
           requests: arrayUnion(userID),
@@ -81,12 +83,14 @@ function JoinGroup() {
       } catch (error) {
         console.error('Error requesting to join:', error);
       }
+      setRequestLoading(false);
     }
   };
 
   // Function to cancel join request
   const handleCancelRequest = async () => {
     if (groupInfo) {
+      setRequestLoading(true);
       try {
         await updateDoc(doc(db, 'groups', groupInfo.id), {
           requests: arrayRemove(userID),
@@ -95,6 +99,7 @@ function JoinGroup() {
       } catch (error) {
         console.error('Error canceling request:', error);
       }
+      setRequestLoading(false);
     }
   };
 
@@ -126,51 +131,52 @@ function JoinGroup() {
       />
 
       <div className="body">
-        <div>
+        <form className="join-group-form" onSubmit={handleSearchGroups}>
+          <label htmlFor="group-name">Group Name:</label>
           <input
             type="text"
             value={groupName}
             onChange={handleGroupNameChange}
             placeholder="Enter group name"
             className="group-input"
+            autoComplete="off"
+            required
           />
-          {loading ? (
-            <button className="search-btn" disabled>
-              Loading...
-            </button>
-          ) : (
-            <button className="search-btn" onClick={handleSearchGroups}>
-              Search
-            </button>
-          )}
-          
-          {noGroupsFound && (
-            <div className="error">
-              No groups found with the name "{groupName}".
-            </div>
-          )}
+          <button type="submit" className="search-btn" disabled={loading}>
+            {loading ? 'Searching...' : 'Search'}
+          </button>
+        </form>
+        {noGroupsFound && (
+          <div className="error">
+            No groups found with the name "{groupName}".
+          </div>
+        )}
 
-          {groupFound && groupInfo && (
-            <div className="found-group-name">
-              <h2>{groupInfo.groupID}</h2>
-              {membershipStatus === 'member' && (
-                <button className="request-btn" disabled>
-                  Already a member
-                </button>
-              )}
-              {membershipStatus === 'requested' && (
-                <button className="request-btn" onClick={handleCancelRequest}>
-                  Cancel Request
-                </button>
-              )}
-              {membershipStatus === 'none' && (
-                <button className="request-btn" onClick={handleRequestToJoin}>
-                  Request to Join
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+        {groupFound && groupInfo && (
+          <div className="found-group-name">
+            <h2>{groupInfo.groupName}</h2>
+            {requestLoading && (
+              <button className="request-btn" disabled>
+                Loading...
+              </button>
+            )}
+            {!requestLoading && membershipStatus === 'member' && (
+              <button className="request-btn" disabled>
+                Already a member
+              </button>
+            )}
+            {!requestLoading && membershipStatus === 'requested' && (
+              <button className="request-btn" onClick={handleCancelRequest}>
+                Cancel Request
+              </button>
+            )}
+            {!requestLoading && membershipStatus === 'none' && (
+              <button className="request-btn" onClick={handleRequestToJoin}>
+                Request to Join
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
