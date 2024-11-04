@@ -1,7 +1,9 @@
-import './LoggedIn.css';
+import './Settings.css';
+
+import Sidebar from './Sidebar';
+
 import { useState } from 'react';
 import { useAppNavigation } from './navigation';
-import Sidebar from './Sidebar';
 
 function Settings() {
   const [users, setUsers] = useState([]); // State to store users
@@ -16,7 +18,7 @@ function Settings() {
 
 
   return (
-    <div className="app">
+    <div className="settings">
       <div className="header">
         <h1>SimplySplit</h1>
         <p>Log your group expenses here!</p>

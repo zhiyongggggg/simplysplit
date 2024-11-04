@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { auth, db } from './firebase'; // Import your Firebase Firestore instance
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore'; // Firestore functions
-import { useNavigate } from 'react-router-dom'; 
 import './Register.css';
+
+import { useState } from 'react';
+import { auth, db } from './firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom'; 
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -86,7 +87,7 @@ function Register() {
         <button type="submit">
           {isLoading ? 'Loading...' : 'Register'}
         </button>
-        <p className="register-link">
+        <p className="login-link">
           Already have an account? Login
           <span onClick={handleLoginRedirect} className="clickable"> here!</span>
         </p>

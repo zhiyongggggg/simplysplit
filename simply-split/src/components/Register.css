@@ -1,10 +1,3 @@
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-  
-/* Styling the login container */
 .register {
   display: flex;
   flex-direction: column;
@@ -15,15 +8,13 @@
   font-family: 'Helvetica Neue', sans-serif;
   color: #333;
 }
-  
-/* Header styling */
+
 .register h1 {
   color: #1f1c4a;
   font-size: 36px;
   margin-bottom: 30px;
 }
-  
-/* Form styling */
+
 .register form {
   display: flex;
   flex-direction: column;
@@ -42,8 +33,7 @@
   font-size: 16px;
   color: #333;
 }
-  
-/* Input fields styling */
+
 .register input[type="text"],
 .register input[type="password"] {
   width: 100%;
@@ -53,8 +43,12 @@
   border: 1px solid #ccc;
   font-size: 16px;
 }
-  
-/* Login button styling */
+
+.register .error-message {
+  margin-top: 5px;
+  color: red;
+}
+
 .register button {
   width: 100%;
   padding: 15px;
@@ -76,36 +70,11 @@
 .register .login-link {
   margin-top: 20px;
 }
-  
-/* Separator styling */
-.register .separator {
-  margin: 20px 0;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
-  font-weight: bold;
-}
-  
-  
-/* Add some spacing between elements */
-.register input {
-  margin-bottom: 20px;
-}
-
-.register .error-message {
-  margin-top: 5px;
-  color: red;
-}
 
 .register .clickable {
   cursor: pointer;
   color: blue;
 }
   
-/* Responsive design */
 @media (max-width: 600px) {
-  .register form {
-    padding: 20px;
-  }
 }
-  

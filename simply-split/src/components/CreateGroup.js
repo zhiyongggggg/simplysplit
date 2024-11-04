@@ -1,7 +1,9 @@
-import './LoggedIn.css';
+import './CreateGroup.css';
+
+import Sidebar from './Sidebar';
+
 import { useState, useEffect } from 'react';
 import { useAppNavigation } from './navigation';
-import Sidebar from './Sidebar';
 import { db, auth, updateDoc, doc, arrayUnion } from './firebase'; // Import your Firebase Firestore instance
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'; // Firestore functions
 
@@ -92,7 +94,7 @@ function CreateGroup() {
   }, []);
 
   return (
-    <div className="app">
+    <div className="creategroup">
       <div className="header">
         <h1>SimplySplit</h1>
         <p>Create your group below!</p>

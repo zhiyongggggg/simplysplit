@@ -1,8 +1,10 @@
-import './LoggedIn.css';
+import './Home.css';
+
+import Sidebar from './Sidebar';
+
 import { useState, useEffect } from 'react';
 import { useAppNavigation } from './navigation';
-import Sidebar from './Sidebar';
-import { db, auth } from './firebase'; // Make sure to import your Firestore instance
+import { db, auth } from './firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 function Home() {
@@ -42,7 +44,7 @@ function Home() {
   }, []);
 
   return (
-    <div className="app">
+    <div className="home">
       <div className="header">
         <h1>SimplySplit</h1>
         <p>Log your group expenses here!</p>

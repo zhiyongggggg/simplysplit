@@ -1,16 +1,62 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8); 
+  backdrop-filter: blur(5px); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200; 
 }
 
-.body {
+.loading {
+  font-size: 24px;
+  color: #6c63ff;
+}
+
+.groupinfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 100vh;
+  font-family: 'Helvetica Neue', sans-serif;
+  color: #333;
+  background-color: #f4f4f9;
+}
+
+.groupinfo .blur-background {
+  filter: blur(5px);
+  pointer-events: none; 
+}
+
+.groupinfo .header {
+  background: linear-gradient(135deg, #6c63ff, #1f1c4a);
+  max-height: 20vh;
+  padding: 5vh 5vh;
+  color: white;
+  text-align: center;
+  position: relative;
+}
+
+.groupinfo .hamburger {
+  position: absolute;
+  top: 15px;
+  left: 20px; 
+  font-size: 30px;
+  cursor: pointer;
+  color: white;
+}
+
+.groupinfo .body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
-.transaction {
+.groupinfo .transaction {
   padding: 10px;
   margin: 10px 0;
   border: 2px solid #ccc;
@@ -20,44 +66,23 @@
   width: 50vw;
 }
 
-.transaction h3 {
+.groupinfo .transaction h3 {
   margin: 0;
   font-size: 1.2em;
 }
 
-.transaction p {
+.groupinfo .transaction p {
   margin: 5px 0;
 }
 
-
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8); /* Light overlay color */
-  backdrop-filter: blur(5px); /* Background blur effect */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 200; /* Ensure it overlays everything */
-}
-
-.loading {
-  font-size: 24px;
-  color: #6c63ff; /* Color for the loading text */
-}
-
-/* Error message styling */
-.error {
+.groupinfo .error {
   text-align: center;
   font-size: 20px;
   color: red;
   margin-top: 20px;
 }
 
-.floating-navbar {
+.groupinfo .floating-navbar {
   position: fixed;
   bottom: 15px;
   width: 90%;
@@ -74,7 +99,7 @@
   z-index: 100;
 }  
 
-.floating-navbar button {
+.groupinfo .floating-navbar button {
   background-color: #1f1c4a;
   color: white;
   border: none;
@@ -86,40 +111,32 @@
   border-radius: 8px;
 }
 
-.floating-navbar button:hover {
-  background-color: #6c63ff; /* Softer, appealing color */
-  transform: scale(1.02); /* Slight scaling effect */
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); /* Slight shadow for a "lifted" effect */
+.groupinfo .floating-navbar button:hover {
+  background-color: #6c63ff; 
+  transform: scale(1.02); 
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); 
 }
 
-.floating-navbar button:active {
-  transform: scale(1); /* Reset scaling on click */
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15); /* Reduced shadow when pressed */
+.groupinfo .floating-navbar button:active {
+  transform: scale(1);
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.15); 
 }
 
-/* Add blur effect to the background content only when modal is open */
-.blur-background {
-  filter: blur(5px);
-  pointer-events: none; /* Disable interactions with background content */
-}
-
-/* Modal Overlay */
-.modal-overlay {
+.groupinfo .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  z-index: 200; /* Ensure modal is above other content */
+  z-index: 200; 
 }
 
-/* Modal Styling */
-.modal {
+.groupinfo .modal {
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -131,20 +148,22 @@
   flex-direction: column;
 }
 
-/* Header styling */
-.header {
-  padding: 20px;
-  background-color: #1f1c4a;
-  color: white;
-  text-align: center;
+.groupinfo .modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 18px;
+  background: none;
+  color: black;
+  border: none;
+  cursor: pointer;
 }
 
-/* Form group styling */
-.form-group {
+.groupinfo .form-group {
   margin: 15px 0;
 }
 
-input[type="text"] {
+.groupinfo input[type="text"] {
   margin-left: 10px;   
   width: 60%;                   
   padding: 5px;      
@@ -155,19 +174,17 @@ input[type="text"] {
   transition: border-color 0.3s, box-shadow 0.3s; 
 }
 
-/* Remove number input arrows in Chrome, Safari, and Edge */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+.groupinfo input[type="number"]::-webkit-outer-spin-button,
+.groupinfo input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-
-input[type="number"] {
+.groupinfo input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type="number"] {
+.groupinfo input[type="number"] {
   margin-left: 10px;   
   width: 80px;                   
   padding: 5px;      
@@ -178,14 +195,19 @@ input[type="number"] {
   transition: border-color 0.3s, box-shadow 0.3s; 
 }
 
-input[type="text"]:focus,
-input[type="number"]:focus,
-.request-button:hover {
-  border-color: #6c63ff;           /* Highlighted border color on focus */
-  box-shadow: 0 0 5px rgba(108, 99, 255, 0.5); /* Soft purple shadow */
+.groupinfo input[type="text"]:focus,
+.groupinfo input[type="number"]:focus,
+.groupinfo .request-button:hover {
+  border-color: #6c63ff; 
+  box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
 }
 
-.function-btn {
+.groupinfo .function-button-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.groupinfo .function-btn {
   background-color: #837dff;
   color: white;
   border: none;
@@ -197,17 +219,11 @@ input[type="number"]:focus,
   margin-top: 5px;
 }
 
-.function-btn:hover {
-  background-color: #5a52e0; /* Darker shade on hover */
+.groupinfo .function-btn:hover {
+  background-color: #5a52e0;
 }
 
-.button-row {
-  display: flex;
-  justify-content: space-around;
-}
-
-/* Submit button styling */
-.submit-btn {
+.groupinfo .submit-btn {
   background-color: #5b53ff;
   color: white;
   border: none;
@@ -219,13 +235,13 @@ input[type="number"]:focus,
   margin-top: 20px;
 }
 
-.submit-btn:hover {
+.groupinfo .submit-btn:hover {
   background-color: #5a52e0; /* Darker shade on hover */
 }
 
-.group-members,
-.payer-selection,
-.people-involved-selection {
+.groupinfo .group-members,
+.groupinfo .payer-selection,
+.groupinfo .people-involved-selection {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -236,7 +252,7 @@ input[type="number"]:focus,
   background-color: #f9f9f9; 
 }
 
-.request-button {
+.groupinfo .request-button {
   margin-left: 10px;
   padding: 2px;
   border: 1px solid #ccc;        
@@ -244,13 +260,3 @@ input[type="number"]:focus,
   transition: border-color 0.3s, box-shadow 0.3s; 
 }
 
-.modal-close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 18px;
-  background: none;
-  color: black;
-  border: none;
-  cursor: pointer;
-}

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Sidebar.css'; // You can separate styles for the sidebar here
+import './Sidebar.css';
 
 function Sidebar({ isMenuOpen, toggleMenu, handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout }) {
   return (

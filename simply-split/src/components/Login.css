@@ -1,10 +1,3 @@
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-  
-  /* Styling the login container */
 .login {
   display: flex;
   flex-direction: column;
@@ -15,15 +8,13 @@
   font-family: 'Helvetica Neue', sans-serif;
   color: #333;
 }
-  
-/* Header styling */
+
 .login h1 {
   color: #1f1c4a;
   font-size: 36px;
   margin-bottom: 30px;
 }
   
-/* Form styling */
 .login form {
   display: flex;
   flex-direction: column;
@@ -41,8 +32,7 @@
   font-size: 16px;
   color: #333;
 }
-  
-  /* Input fields styling */
+
 .login input[type="text"],
 .login input[type="password"] {
   width: 100%;
@@ -54,8 +44,12 @@
   border: 1px solid #ccc;
   font-size: 16px;
 }
+
+.login .error-message {
+  margin-top: 5px;
+  color: red;
+}
   
-/* Login button styling */
 .login button {
   width: 100%;
   padding: 15px;
@@ -78,35 +72,11 @@
   margin-top: 20px;
   margin-bottom: 10px;
 }
-  
-/* Separator styling */
-.login .separator {
-  margin: 10px 0;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
-  font-weight: bold;
-}
-  
-/* Add some spacing between elements */
-.login input {
-  margin-bottom: 20px;
-}
-
-.login .error-message {
-  margin-top: 5px;
-  color: red;
-}
 
 .login .clickable {
   cursor: pointer;
   color: blue;
 }
   
-/* Responsive design */
 @media (max-width: 600px) {
-  .login form {
-    padding: 20px;
-  }
 }
-  

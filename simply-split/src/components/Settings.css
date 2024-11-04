@@ -1,0 +1,48 @@
+.settings {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 100vh;
+    font-family: 'Helvetica Neue', sans-serif;
+    color: #333;
+    background-color: #f4f4f9;
+}
+
+.settings .header {
+    background: linear-gradient(135deg, #6c63ff, #1f1c4a);
+    max-height: 20vh;
+    padding: 5vh 5vh;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+.settings .hamburger {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+}
+
+.settings .settings-btn {
+    width: 80%;
+    padding: 15px;
+    background: #1f1c4a;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.settings .settings-btn:hover {
+    background-color: #6c63ff;
+    transform: translateY(-5px);
+}
+
+
+

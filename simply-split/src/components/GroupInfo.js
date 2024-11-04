@@ -1,9 +1,11 @@
+import './GroupInfo.css';
+
+import Sidebar from './Sidebar';
+
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom'; 
 import { db, auth } from './firebase'; 
 import { useAppNavigation } from './navigation';
-import './GroupInfo.css';
-import Sidebar from './Sidebar';
 import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, arrayRemove, arrayUnion, FieldValue } from 'firebase/firestore'; // Firestore functions
 
 function GroupInfo() {
@@ -236,7 +238,7 @@ function GroupInfo() {
     return <div className="error">Group not found.</div>;
   }
   return (
-    <div className="app">
+    <div className="groupinfo">
       <div className={`content ${isAddTransactionModalOpen ? 'blur-background' : ''}`}>
         <div className="header">
           <h1>SimplySplit</h1>
@@ -361,7 +363,7 @@ function GroupInfo() {
                 onFocus={(e) => e.target.select()}
               />
             </div>
-            <div className="button-row">
+            <div className="function-button-row">
               <button className="function-btn" onClick={applyTax}>Apply Tax</button>
               <button className="function-btn" onClick={splitEqually}>Split Equally</button>
             </div>
@@ -408,7 +410,6 @@ function GroupInfo() {
                 </span>
               </div>
             ))}
-            <button className="submit-btn" onClick={handleCloseSettingsModal}>Save Settings</button>
           </div>
         </div>
       )}

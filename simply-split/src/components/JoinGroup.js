@@ -1,8 +1,9 @@
-import './LoggedIn.css';
-import './JoinGroup.css'; // Import the CSS for this component
+import './JoinGroup.css';
+
+import Sidebar from './Sidebar';
+
 import { useState } from 'react';
 import { useAppNavigation } from './navigation';
-import Sidebar from './Sidebar';
 import { db, auth } from './firebase'; 
 import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
