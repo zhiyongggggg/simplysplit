@@ -215,7 +215,7 @@ function GroupInfo() {
       await updateDoc(groupDoc.ref, {
         members: arrayUnion(request),
       });
-      await fetchGroupData(); // Necessary to update the group data states to reflect updated requests
+      await fetchGroupDoc(); // Necessary to update the group data states to reflect updated requests
       console.log(`Accepted request from: ${usernames[request]}`);
       setIsLoading(false); 
     } catch (error) {
@@ -229,7 +229,7 @@ function GroupInfo() {
       await updateDoc(groupDoc.ref, {
         requests: arrayRemove(request),
       });
-      await fetchGroupData();
+      await fetchGroupDoc();
       console.log(`Rejected request from: ${usernames[request]}`);
       setIsLoading(false); 
     } catch (error) {
