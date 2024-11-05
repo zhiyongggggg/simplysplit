@@ -3,15 +3,16 @@ import './GroupInfo.css';
 import Sidebar from './Sidebar';
 
 import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom'; 
+import { useLocation } from 'react-router-dom'; 
 import { db } from './firebase'; 
 import { useAppNavigation } from './navigation';
-import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, arrayRemove, arrayUnion, FieldValue } from 'firebase/firestore'; // Firestore functions
+import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore'; // Firestore functions
 
 function GroupInfo() {
   // Initialization
   const location = useLocation(); 
   const groupId = location.state?.groupId; 
+  const currentUserId = location.state?.userId;
   const [groupDoc, setGroupDoc] = useState(null);
   const [groupData, setGroupData] = useState(null);
   const [usernames, setUsernames] = useState({});
@@ -36,10 +37,10 @@ function GroupInfo() {
   // For settle up portion
   const [settlement, setSettlement] = useState({});
   
-  const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
+  const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout } = useAppNavigation();
 
 
-  {/* ============ Fetch group document ============ */}
+  // ============ Fetch group document ============ 
   const fetchGroupDoc = async () => {
     try {
       const groupDoc = await getDoc(doc(db, 'groups', groupId));
@@ -53,13 +54,13 @@ function GroupInfo() {
       console.error('Error fetching group ref:', error);
     }
   };
-  {/* ============ Calling group document ============ */}
+  // ============ Calling group document ============ 
   useEffect(() => {
     fetchGroupDoc();
   }, [groupId]);
 
 
-  {/* ============ Fetch group data and usernames ============ */}
+  // ============ Fetch group data and usernames ============ 
   const fetchGroupData = async () => {
     if (groupId) { 
       if (groupDoc) {
@@ -93,13 +94,13 @@ function GroupInfo() {
       console.error('No groupId provided');
     }
   };
-  {/* ============ Calling fetch group data and usernames ============ */}
+  // ============ Calling fetch group data and usernames ============ 
   useEffect(() => {
     fetchGroupData();
   }, [groupDoc]);
 
 
-  {/* ============ Fetch group transactions and generate settle up ============ */}
+  // ============ Fetch group transactions and generate settle up ============ 
   const fetchTransactions = async () => { 
     const transactionsQuery = query(collection(db, 'transactions'), where('groupID', '==', groupId));
   
@@ -117,19 +118,19 @@ function GroupInfo() {
       setIsLoading(false); 
     }
   };
-  {/* ============ Calling fetch transaction ============ */}
+  // ============ Calling fetch transaction ============ 
   useEffect(() => {
     fetchTransactions();
   }, [groupId]);
 
 
-  {/* ============ Toggle Menu ============ */}
+  // ============ Toggle Menu ============ 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
 
-  {/* ============ Toggle Modal ============ */}
+  // ============ Toggle Modal ============ 
   const handleOpenAddTransactionModal = () => {
     setIsAddTransactionModalOpen(true);
     setUnsettledAmount(totalAmount); 
@@ -158,21 +159,21 @@ function GroupInfo() {
   };
 
 
-  {/* ============ Updating the "Remaining Amount" ============ */}
+  // ============ Updating the "Remaining Amount" ============ 
   useEffect(() => {
     const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0); // Loops through the values of the dictionary (object) and sum them up, storing the number under acc,
     setRemainingAmount(totalAmount - totalPayerAmount);                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
   }, [payerAmounts, totalAmount]);
 
 
-  {/* ============ Updating the "Unsettled Amount" ============ */}
+  // ============ Updating the "Unsettled Amount" ============ 
   useEffect(() => {
     const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
     setUnsettledAmount(totalAmount - totalPeopleAmount);
   }, [peopleAmounts, totalAmount]);
 
 
-  {/* ============ Updating Payer and People Amount ============ */}
+  // ============ Updating Payer and People Amount ============ 
   const handlePayerChange = (payerId, value) => {
     setPayerAmounts((prev) => ({ ...prev, [payerId]: value })); // prev holds the previous dictionary before change, the function essentially copy paste and edits the specific member's value
   };                                                            // there is a need to copy paste rather than just changing because by spreading prev into a new object, a new state is created, triggering useEffect
@@ -181,7 +182,7 @@ function GroupInfo() {
   };
 
 
-  {/* ============ Split Unsettled Sum Equally ============ */}
+  // ============ Split Unsettled Sum Equally ============ 
   const splitEqually = () => {
     const peopleInvolved = groupData.members.filter(
       member => !peopleAmounts[member] || peopleAmounts[member] == 0
@@ -199,7 +200,7 @@ function GroupInfo() {
   };
 
   
-  {/* ============ Apply Tax ============ */}
+  // ============ Apply Tax ============ 
   const applyTax = () => {
     const taxMultiplier = 1 + (parseFloat(taxRate) / 100);
     const updatedAmounts = {};
@@ -211,7 +212,7 @@ function GroupInfo() {
   };
 
 
-  {/* ============ Submit Transaction ============ */}
+  // ============ Submit Transaction ============ 
   const handleTransactionSubmit = async () => {
     await handleCreateTransaction();
     await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
@@ -219,7 +220,7 @@ function GroupInfo() {
   };
 
 
-  {/* ============ Create New Transaction Entry in Firebase ============ */}
+  // ============ Create New Transaction Entry in Firebase ============ 
   const handleCreateTransaction = async () => {
     setIsLoading(true);
 
@@ -277,7 +278,7 @@ function GroupInfo() {
   };
 
 
-  {/* ============ Generate Debtor and Creditors ============ */}
+  // ============ Generate Debtor and Creditors ============ 
   const calculateSettlements = () => {
     if (!groupData || !groupData.balances) {
       console.log("groupData or balances is not ready yet.");
@@ -327,13 +328,18 @@ function GroupInfo() {
 
     setSettlement(settlements);
   };
-  {/* ============ Calling Generate Debtor and Creditors ============ */}
+  // ============ Calling Generate Debtor and Creditors ============ 
   useEffect(() => {
     calculateSettlements();
   }, [groupData]);
 
 
-  {/* ============ Accept and Request Join Requests ============ */}
+  // ============ When Settlement is Clicked ============
+  const handleSettlement = () => {
+    //New modal opens and it has a settle fully, and settle partially button (with input field for amount)
+  };
+
+  // ============ Accept and Request Join Requests ============ 
   const handleAcceptRequest = async (request) => {
     try {
       setIsLoading(true); 
@@ -535,12 +541,12 @@ function GroupInfo() {
             <h2>Settle Up</h2>
             <label htmlFor="setupField1">Pending Transactions:</label>
             {settlement.map((s) => (
-              <div key={s.from + "_" + s.to} className="group-members">
-                <span>{usernames[s.from]} owes {usernames[s.to]}: </span>
-                <span>{s.amount}</span> 
-              </div>
+              <button key={s.from + "_" + s.to} className="settlement" onClick={handleSettlement}>
+                <span>
+                  {s.from === currentUserId ? "You" : usernames[s.from]} owes {s.to === currentUserId ? "you" : usernames[s.to]}: <strong>${s.amount}</strong>
+                </span>
+              </button>
             ))}
-            <button className="submit-btn" onClick={handleCloseSettleUpModal}>Complete Setup</button>
           </div>
         </div>
       )}

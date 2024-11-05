@@ -8,6 +8,7 @@ import { db, auth } from './firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 function Home() {
+  const user = auth.currentUser;
   const [groups, setGroups] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +21,6 @@ function Home() {
 
   useEffect(() => {
     const fetchUserGroups = async () => {
-      const user = auth.currentUser;
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
@@ -40,7 +40,7 @@ function Home() {
     };
 
     fetchUserGroups();
-  }, []);
+  }, [user]);
 
   return (
     <div className="home">
@@ -73,7 +73,7 @@ function Home() {
         ) : (
           <div className="grouplist">
             {groups.map((group) => (
-              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupName, group.id)}>
+              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupName, group.id, user.uid)}>
                 <h2>{group.groupName}</h2> {/* Display group name or any other detail */}
               </button>
             ))}

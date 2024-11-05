@@ -29,9 +29,9 @@ export const useAppNavigation = () => {
     }
   };
 
-  const handleGroupInfo = (groupName, groupId) => {
+  const handleGroupInfo = (groupName, groupId, userId) => {
     try {
-      navigate(`/group/${groupName}`, { state: { groupId } }); 
+      navigate(`/group/${groupName}`, { state: { groupId, userId } }); 
     } catch (error) {
       console.error('Error navigating to Group Info Page:', error);
     }
