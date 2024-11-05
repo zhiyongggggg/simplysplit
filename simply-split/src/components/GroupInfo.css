@@ -148,15 +148,42 @@
 
 .groupinfo .modal {
   background: white;
-  padding: 20px;
+  padding: 20px 10px 20px 20px;
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   position: relative;
   display: flex;
   flex-direction: column;
 }
+
+
+.groupinfo .modal-content {
+  max-height: 80vh; 
+  overflow-y: auto; 
+  padding-right: 10px; 
+}
+
+.groupinfo .modal-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.groupinfo .modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.groupinfo .modal-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.groupinfo .modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 
 .groupinfo .modal-close-btn {
   position: absolute;
@@ -234,6 +261,7 @@
 }
 
 .groupinfo .submit-btn {
+  width: 200px;
   background-color: #5b53ff;
   color: white;
   border: none;

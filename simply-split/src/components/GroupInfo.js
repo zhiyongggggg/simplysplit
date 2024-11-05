@@ -344,11 +344,26 @@ function GroupInfo() {
       await updateDoc(groupDoc.ref, {
         members: arrayUnion(request),
       });
+
       await fetchGroupDoc(); // Necessary to update the group data states to reflect updated requests
       console.log(`Accepted request from: ${usernames[request]}`);
       setIsLoading(false); 
     } catch (error) {
       console.error('Error accepting request:', error);
+    }
+    try {
+      const userDocRef = doc(db, 'users', request);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const currentGroups = userDoc.data().groupsInvolved || [];
+        const updatedGroups = [...currentGroups, groupData.id];
+        await updateDoc(userDocRef, {
+          groupsInvolved: updatedGroups
+        });
+      }
+    } catch (error) {
+      console.error('Error updating groups involved:', error);
     }
   };
   const handleRejectRequest = async (request) => {
@@ -435,76 +450,81 @@ function GroupInfo() {
           <div className="modal">
             <button className="modal-close-btn" onClick={handleCloseModal}>X</button>
             <h2>Add Transaction</h2>
-            
-            <div className="form-group">
-              <label htmlFor="total-amount">Total Amount:</label>
-              <input
-                type="number"
-                id="total-amount"
-                value={totalAmount}
-                onChange={(e) => setTotalAmount(e.target.value)}
-                onFocus={(e) => e.target.select()}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="total-amount">Description:</label>
-              <input
-                type="text"
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onFocus={(e) => e.target.select()}
-                autoComplete='off'
-              />
-            </div>
-            {/* Payer Section */}
-            <h3>Payer:</h3>
-            {groupData.members.map((member) => (
-              <div key={member} className="payer-selection">
-                <span>{usernames[member]}</span> 
+
+            {/* Add a new div wrapper for scrollable content */}
+            <div className="modal-content">
+              <div className="form-group">
+                <label htmlFor="total-amount">Total Amount:</label>
                 <input
                   type="number"
-                  min="0"
-                  value={payerAmounts[member] || 0}
-                  onChange={(e) => handlePayerChange(member, e.target.value)}
+                  id="total-amount"
+                  value={totalAmount}
+                  onChange={(e) => setTotalAmount(e.target.value)}
                   onFocus={(e) => e.target.select()}
-                  style={{ marginLeft: 'auto' }}
                 />
               </div>
-            ))}
-            <div>Remaining Amount: {remainingAmount}</div>
-            <br></br>
-            {/* People Involved Section */}
-            <h3>People Involved:</h3>
-            {groupData.members.map((member) => (
-              <div key={member} className="people-involved-selection">
-                <span>{usernames[member]}</span> 
+              <div className="form-group">
+                <label htmlFor="total-amount">Description:</label>
+                <input
+                  type="text"
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  autoComplete='off'
+                />
+              </div>
+              {/* Payer Section */}
+              <h3>Payer:</h3>
+              {groupData.members.map((member) => (
+                <div key={member} className="payer-selection">
+                  <span>{usernames[member]}</span> 
+                  <input
+                    type="number"
+                    min="0"
+                    value={payerAmounts[member] || 0}
+                    onChange={(e) => handlePayerChange(member, e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    style={{ marginLeft: 'auto' }}
+                  />
+                </div>
+              ))}
+              <div>Remaining Amount: {remainingAmount}</div>
+              <br></br>
+              {/* People Involved Section */}
+              <h3>People Involved:</h3>
+              {groupData.members.map((member) => (
+                <div key={member} className="people-involved-selection">
+                  <span>{usernames[member]}</span> 
+                  <input
+                    type="number"
+                    min="0"
+                    value={peopleAmounts[member] || 0}
+                    onChange={(e) => handlePeopleChange(member, e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    style={{ marginLeft: 'auto' }}
+                  />
+                </div>
+              ))}
+              <div>Unsettled Borrowed Amount: {unsettledAmount}</div>
+              <div className="form-group">
+                <label htmlFor="tax-rate">Tax Rate (%):</label>
                 <input
                   type="number"
-                  min="0"
-                  value={peopleAmounts[member] || 0}
-                  onChange={(e) => handlePeopleChange(member, e.target.value)}
+                  id="tax-rate"
+                  value={taxRate}
+                  onChange={(e) => setTaxRate(e.target.value)}
                   onFocus={(e) => e.target.select()}
-                  style={{ marginLeft: 'auto' }}
                 />
               </div>
-            ))}
-            <div>Unsettled Borrowed Amount: {unsettledAmount}</div>
-            <div className="form-group">
-              <label htmlFor="tax-rate">Tax Rate (%):</label>
-              <input
-                type="number"
-                id="tax-rate"
-                value={taxRate}
-                onChange={(e) => setTaxRate(e.target.value)}
-                onFocus={(e) => e.target.select()}
-              />
+              <div className="function-button-row">
+                <button className="function-btn" onClick={applyTax}>Apply Tax</button>
+                <button className="function-btn" onClick={splitEqually}>Split Equally</button>
+              </div>
+              <div className="function-button-row">
+                <button className="submit-btn" onClick={handleTransactionSubmit}>Submit</button>
+              </div>
             </div>
-            <div className="function-button-row">
-              <button className="function-btn" onClick={applyTax}>Apply Tax</button>
-              <button className="function-btn" onClick={splitEqually}>Split Equally</button>
-            </div>
-            <button className="submit-btn" onClick={handleTransactionSubmit}>Submit</button>
           </div>
         </div>
       )}
