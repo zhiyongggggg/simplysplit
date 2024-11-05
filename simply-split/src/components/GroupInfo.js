@@ -9,18 +9,22 @@ import { useAppNavigation } from './navigation';
 import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, arrayRemove, arrayUnion, FieldValue } from 'firebase/firestore'; // Firestore functions
 
 function GroupInfo() {
-  const { groupName } = useParams(); 
+  // Initialization
   const location = useLocation(); 
   const groupId = location.state?.groupId; 
   const [groupDoc, setGroupDoc] = useState(null);
   const [groupData, setGroupData] = useState(null);
   const [usernames, setUsernames] = useState({});
+  const [transactions, setTransactions] = useState([]);
+
+  // Modals
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
-  const [transactions, setTransactions] = useState([]);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  // For add transactions portion
   const [payerAmounts, setPayerAmounts] = useState({}); // Amount of money paid by each user
   const [peopleAmounts, setPeopleAmounts] = useState({}); // Amount of money to be paid by each user
   const [totalAmount, setTotalAmount] = useState(0);
@@ -28,6 +32,9 @@ function GroupInfo() {
   const [remainingAmount, setRemainingAmount] = useState(0);
   const [unsettledAmount, setUnsettledAmount] = useState(0);
   const [taxRate, setTaxRate] = useState(0); 
+
+  // For settle up portion
+  const [settlement, setSettlement] = useState({});
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
 
@@ -37,9 +44,10 @@ function GroupInfo() {
     try {
       const groupDoc = await getDoc(doc(db, 'groups', groupId));
       if (groupDoc.exists()) {
-        setGroupDoc(groupDoc); // Store all group data in state
+        setGroupDoc(groupDoc);
+        console.log('GroupDoc fetched.');
       } else {
-        console.error('Group not found');
+        console.error('Group ref not found');
       }
     } catch (error) {
       console.error('Error fetching group ref:', error);
@@ -56,7 +64,7 @@ function GroupInfo() {
     if (groupId) { 
       if (groupDoc) {
         setGroupData({ id: groupDoc.id, ...groupDoc.data() });
-        console.log(setGroupData);
+        console.log('Group data: ', groupDoc.data());
         const members = groupDoc.data().members;
         const fetchedRequest = groupDoc.data().requests;
         const fetchedUsernames = {};
@@ -79,7 +87,7 @@ function GroupInfo() {
         }
         setUsernames(fetchedUsernames); 
       } else {
-        console.error('Group not found');
+        console.error('GroupDoc not found');
       }
     } else {
       console.error('No groupId provided');
@@ -91,7 +99,7 @@ function GroupInfo() {
   }, [groupDoc]);
 
 
-  {/* ============ Fetch group transactions ============ */}
+  {/* ============ Fetch group transactions and generate settle up ============ */}
   const fetchTransactions = async () => { 
     const transactionsQuery = query(collection(db, 'transactions'), where('groupID', '==', groupId));
   
@@ -102,7 +110,6 @@ function GroupInfo() {
         ...doc.data()
       }));
       fetchedTransactions.sort((a, b) => b.transactionTime.toDate() - a.transactionTime.toDate());
-  
       setTransactions(fetchedTransactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -114,20 +121,6 @@ function GroupInfo() {
   useEffect(() => {
     fetchTransactions();
   }, [groupId]);
-
-
-  {/* ============ Updating the "Remaining Amount" ============ */}
-  useEffect(() => {
-    const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0); // Loops through the values of the dictionary (object) and sum them up, storing the number under acc,
-    setRemainingAmount(totalAmount - totalPayerAmount);                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
-  }, [payerAmounts, totalAmount]);
-
-
-  {/* ============ Updating the "Unsettled Amount" ============ */}
-  useEffect(() => {
-    const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
-    setUnsettledAmount(totalAmount - totalPeopleAmount);
-  }, [peopleAmounts, totalAmount]);
 
 
   {/* ============ Toggle Menu ============ */}
@@ -165,12 +158,56 @@ function GroupInfo() {
   };
 
 
+  {/* ============ Updating the "Remaining Amount" ============ */}
+  useEffect(() => {
+    const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0); // Loops through the values of the dictionary (object) and sum them up, storing the number under acc,
+    setRemainingAmount(totalAmount - totalPayerAmount);                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
+  }, [payerAmounts, totalAmount]);
+
+
+  {/* ============ Updating the "Unsettled Amount" ============ */}
+  useEffect(() => {
+    const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
+    setUnsettledAmount(totalAmount - totalPeopleAmount);
+  }, [peopleAmounts, totalAmount]);
+
+
   {/* ============ Updating Payer and People Amount ============ */}
   const handlePayerChange = (payerId, value) => {
     setPayerAmounts((prev) => ({ ...prev, [payerId]: value })); // prev holds the previous dictionary before change, the function essentially copy paste and edits the specific member's value
   };                                                            // there is a need to copy paste rather than just changing because by spreading prev into a new object, a new state is created, triggering useEffect
   const handlePeopleChange = (personId, value) => {
     setPeopleAmounts((prev) => ({ ...prev, [personId]: value }));
+  };
+
+
+  {/* ============ Split Unsettled Sum Equally ============ */}
+  const splitEqually = () => {
+    const peopleInvolved = groupData.members.filter(
+      member => !peopleAmounts[member] || peopleAmounts[member] == 0
+    );
+    if (peopleInvolved.length === 0) {
+      return; // No one has 0 input, exit the function
+    }
+    const splitAmount = (unsettledAmount / peopleInvolved.length).toFixed(2);
+    const updatedAmounts = { ...peopleAmounts };
+    // Update the amounts for people involved who have 0
+    peopleInvolved.forEach(member => {
+      updatedAmounts[member] = splitAmount; // Set the calculated split amount
+    });
+    setPeopleAmounts(updatedAmounts);
+  };
+
+  
+  {/* ============ Apply Tax ============ */}
+  const applyTax = () => {
+    const taxMultiplier = 1 + (parseFloat(taxRate) / 100);
+    const updatedAmounts = {};
+    // Apply tax to each person involved
+    for (const member in peopleAmounts) {
+      updatedAmounts[member] = (parseFloat(peopleAmounts[member] || 0) * taxMultiplier).toFixed(2);
+    }
+    setPeopleAmounts(updatedAmounts);
   };
 
 
@@ -185,6 +222,8 @@ function GroupInfo() {
   {/* ============ Create New Transaction Entry in Firebase ============ */}
   const handleCreateTransaction = async () => {
     setIsLoading(true);
+
+    // Add entry in  "Transactions" db.
     const transactionsCollection = collection(db, 'transactions');
     try {
       const transactionsDocRef = await addDoc(transactionsCollection, {
@@ -198,10 +237,100 @@ function GroupInfo() {
       console.log('Transaction logged.');
     } catch (error) {
       console.error('Error logging transaction:', error);
+    } 
+
+    // Update balances object in "Group" db.
+    const currentBalances = {};
+    Object.entries(payerAmounts).forEach(([userId, amount]) => {
+      if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
+      currentBalances[userId].paid += parseFloat(amount);
+    });
+    Object.entries(peopleAmounts).forEach(([userId, amount]) => {
+      if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
+      currentBalances[userId].shouldPay += parseFloat(amount);
+    });
+
+    const shouldPayBalances = {};
+    Object.entries(currentBalances).forEach(([userId, { paid, shouldPay }]) => {
+      shouldPayBalances[userId] = paid - shouldPay;
+    });
+
+    const updatedBalances = groupData.balances;
+    Object.entries(shouldPayBalances).forEach(([userId, amount]) => {
+      if (!updatedBalances[userId]) updatedBalances[userId] = 0;
+      updatedBalances[userId] += parseFloat(amount);
+    });
+
+    try {
+      const docRef = doc(db, "groups", groupId);
+      await updateDoc(docRef, { balances: updatedBalances });
+      setGroupData(prevGroupData => ({
+        ...prevGroupData,
+        balances: updatedBalances
+      }));
+      console.log('Balances updated.');
+    } catch (error) {
+      console.error('Error updating balances:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+
+  {/* ============ Generate Debtor and Creditors ============ */}
+  const calculateSettlements = () => {
+    if (!groupData || !groupData.balances) {
+      console.log("groupData or balances is not ready yet.");
+      return;
+    }
+    
+    console.log(groupData);
+    const balances = groupData.balances;
+    const creditors = [];
+    const debtors = [];
+    
+    Object.entries(balances).forEach(([userId, balance]) => {
+      if (balance > 0) creditors.push({ userId, balance });
+      else if (balance < 0) debtors.push({ userId, balance: -balance });
+    });
+  
+    creditors.sort((a, b) => b.balance - a.balance);
+    debtors.sort((a, b) => b.balance - a.balance);
+  
+    const settlements = [];
+    let i = 0; // Pointer for creditors
+    let j = 0; // Pointer for debtors
+  
+    // Process settlements
+    while (i < creditors.length && j < debtors.length) {
+      const creditor = creditors[i];
+      const debtor = debtors[j];
+  
+      // Determine the settlement amount
+      const amount = Math.min(creditor.balance, debtor.balance);
+  
+      // Create a settlement transaction
+      settlements.push({
+        from: debtor.userId,
+        to: creditor.userId,
+        amount,
+      });
+  
+      // Adjust the balances
+      creditor.balance -= amount;
+      debtor.balance -= amount;
+  
+      // Move pointers if one party's balance is settled
+      if (creditor.balance === 0) i++;
+      if (debtor.balance === 0) j++;
+    }
+
+    setSettlement(settlements);
+  };
+  {/* ============ Calling Generate Debtor and Creditors ============ */}
+  useEffect(() => {
+    calculateSettlements();
+  }, [groupData]);
 
 
   {/* ============ Accept and Request Join Requests ============ */}
@@ -237,36 +366,6 @@ function GroupInfo() {
     }
   };
   
-  {/* ============ Split Unsettled Sum Equally ============ */}
-  const splitEqually = () => {
-    const peopleInvolved = groupData.members.filter(
-      member => !peopleAmounts[member] || peopleAmounts[member] == 0
-    );
-    if (peopleInvolved.length === 0) {
-      return; // No one has 0 input, exit the function
-    }
-    const splitAmount = (unsettledAmount / peopleInvolved.length).toFixed(2);
-    const updatedAmounts = { ...peopleAmounts };
-    // Update the amounts for people involved who have 0
-    peopleInvolved.forEach(member => {
-      updatedAmounts[member] = splitAmount; // Set the calculated split amount
-    });
-    setPeopleAmounts(updatedAmounts);
-  };
-
-
-  {/* ============ Apply Tax ============ */}
-  const applyTax = () => {
-    const taxMultiplier = 1 + (parseFloat(taxRate) / 100);
-    const updatedAmounts = {};
-    // Apply tax to each person involved
-    for (const member in peopleAmounts) {
-      updatedAmounts[member] = (parseFloat(peopleAmounts[member] || 0) * taxMultiplier).toFixed(2);
-    }
-    setPeopleAmounts(updatedAmounts);
-  };
-
-
   return (
     <div className="groupinfo">
       <div className={`content ${isAddTransactionModalOpen ? 'blur-background' : ''}`}>
@@ -413,16 +512,14 @@ function GroupInfo() {
         <div className="modal-overlay">
           <div className="modal">
             <button className="modal-close-btn" onClick={handleCloseSettleUpModal}>X</button>
-            <h2>Set Up</h2>
-            {/* Add your setup fields here */}
-            <div className="form-group">
-              <label htmlFor="setupField1">Setup Field 1:</label>
-              <input type="text" id="setupField1" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="setupField2">Setup Field 2:</label>
-              <input type="text" id="setupField2" />
-            </div>
+            <h2>Settle Up</h2>
+            <label htmlFor="setupField1">Pending Transactions:</label>
+            {settlement.map((s) => (
+              <div key={s.from + "_" + s.to} className="group-members">
+                <span>{usernames[s.from]} owes {usernames[s.to]}: </span>
+                <span>{s.amount}</span> 
+              </div>
+            ))}
             <button className="submit-btn" onClick={handleCloseSettleUpModal}>Complete Setup</button>
           </div>
         </div>

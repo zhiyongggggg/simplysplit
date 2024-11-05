@@ -57,6 +57,7 @@ function CreateGroup() {
           createdAt: new Date(),
           members: [userID],
           requests: [],
+          balances: {},
         });
 
         setGroupTag(generatedTag);
