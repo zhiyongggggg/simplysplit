@@ -1,6 +1,7 @@
 import './GroupInfo.css';
 
 import Sidebar from './Sidebar';
+import deleteIcon from './delete.png';
 
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom'; 
@@ -20,11 +21,15 @@ function GroupInfo() {
 
   // Modals
   const [isLoading, setIsLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
   const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
   const [isIndividualSettleModalOpen, setIsIndividualSettleModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  // For delete transaction portion
+  const [deleteTransaction, setDeleteTransaction] = useState(null);
 
   // For add transactions portion
   const [payerAmounts, setPayerAmounts] = useState({}); // Amount of money paid by each user
@@ -39,8 +44,6 @@ function GroupInfo() {
   const [settlement, setSettlement] = useState({});
   const [currentSettlement, setCurrentSettlement] = useState(null);
   const [settleAmount, setSettleAmount] = useState(0);
-  const [payer, setPayer] = useState("");
-  const [receiver, setReceiver] = useState("");
 
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout } = useAppNavigation();
@@ -137,6 +140,10 @@ function GroupInfo() {
 
 
   // ============ Toggle Modal ============ 
+  const handleOpenConfirmDeleteModal = (transaction) => {
+    setIsConfirmDeleteModalOpen(true);
+    setDeleteTransaction(transaction);
+  };
   const handleOpenAddTransactionModal = () => {
     setIsAddTransactionModalOpen(true);
     setUnsettledAmount(totalAmount); 
@@ -153,6 +160,10 @@ function GroupInfo() {
   const handleOpenSettingsModal = () => {
     setIsSettingsModalOpen(true);
   };
+  const handleCloseConfirmDeleteModal = () => {
+    setIsConfirmDeleteModalOpen(false);
+    setDeleteTransaction(null);
+  };
   const handleCloseTransactionModal = () => {
     setIsAddTransactionModalOpen(false);
     setPayerAmounts({});
@@ -168,6 +179,7 @@ function GroupInfo() {
   };
   const handleCloseIndividualSettleUpModal = () => {
     setDescription('');
+    setCurrentSettlement(null);
     setIsIndividualSettleModalOpen(false);
     setIsSettleUpModalOpen(true);
   };
@@ -293,6 +305,10 @@ function GroupInfo() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDeleteTransaction = () => {
+    // TO DO - use deleteTransaction state
   };
 
   // ============ Generate Debtor and Creditors ============ 
@@ -452,7 +468,7 @@ function GroupInfo() {
   
   return (
     <div className="groupinfo">
-      <div className={`content ${isAddTransactionModalOpen ? 'blur-background' : ''}`}>
+      <div className={`content ${isConfirmDeleteModalOpen || isAddTransactionModalOpen || isSettleUpModalOpen || isIndividualSettleModalOpen || isSettingsModalOpen ? 'blur-background' : ''}`}>
         <div className="header">
           <h1>SimplySplit</h1>
           <p>Log your group expenses here!</p>
@@ -481,7 +497,10 @@ function GroupInfo() {
               <div>
                 {transactions.length > 0 ? (
                   transactions.map((transaction, index) => (
-                    <div key={index} className={transaction.type}>
+                    <div key={index} className={`transettle-item ${transaction.type}`}>
+                      <button className="delete-icon" onClick={() => {handleOpenConfirmDeleteModal(transaction)}}>
+                        <img src={deleteIcon} alt="Delete" />
+                      </button>
                       <h3>{transaction.description}</h3>
                       {transaction.type === "transaction" ? (
                         <>
@@ -521,6 +540,40 @@ function GroupInfo() {
         </div>
 
       </div>
+      {isConfirmDeleteModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal pending-delete">
+            <button className="modal-close-btn" onClick={handleCloseConfirmDeleteModal}>X</button>
+            <h2>Confirm Delete</h2>
+            <div className={`transettle-item ${deleteTransaction.type} pending-delete-transettle`}>
+            <h3>{deleteTransaction.description}</h3>
+            {deleteTransaction.type === "transaction" ? (
+              <>
+                <p>Total Amount: ${deleteTransaction.totalAmount}</p>
+                <h4>Payer(s):</h4>
+                {Object.entries(deleteTransaction.payer).map(([payerID, amount], idx) => (
+                  <p key={idx}>{payerID === currentUserId ? "You" : usernames[payerID]}: ${amount}</p>
+                ))}
+                <h4>People Involved:</h4>
+                {Object.entries(deleteTransaction.people).map(([personID, amount], idx) => (
+                  <p key={idx}>{personID === currentUserId ? "You" : usernames[personID]}: ${amount}</p>
+                ))}
+              </>
+            ) : (
+              <>
+                <p><strong>{usernames[deleteTransaction.payer]}</strong> has paid <strong>{usernames[deleteTransaction.receiver]}</strong>: ${deleteTransaction.totalAmount}.</p>
+              </>
+            )
+          }
+            <p>Date: {deleteTransaction.transactionTime?.toDate().toLocaleString()}</p>
+          </div>
+            <div className="function-button-row">
+                <button className="function-btn" onClick={handleDeleteTransaction}>Confirm</button>
+                <button className="function-btn" onClick={handleCloseConfirmDeleteModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       {isAddTransactionModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
