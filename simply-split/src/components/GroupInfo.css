@@ -74,7 +74,20 @@
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
+  background-color: #e2fbff;
 }
+
+.groupinfo .settlement {
+  padding: 10px;
+  margin: 10px 0;
+  border: 2px solid #ccc;
+  border-radius: 15px;
+  max-width: 500px;
+  min-width: 300px;
+  width: 50vw;
+  background-color: #e7ffe8;
+}
+
 
 .groupinfo .transaction h3 {
   margin: 0;
@@ -196,6 +209,17 @@
   cursor: pointer;
 }
 
+.groupinfo .modal-back-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 18px;
+  background: none;
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
 .groupinfo .form-group {
   margin: 15px 0;
 }
@@ -290,7 +314,7 @@
   background-color: #f9f9f9; 
 }
 
-.groupinfo .settlement {
+.groupinfo .settlement-entry {
   display: flex;
   justify-content: space-between;
   align-items: center;

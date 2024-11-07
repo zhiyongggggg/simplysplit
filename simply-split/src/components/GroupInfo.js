@@ -23,6 +23,7 @@ function GroupInfo() {
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [isAddTransactionModalOpen, setIsAddTransactionModalOpen] = useState(false);
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
+  const [isIndividualSettleModalOpen, setIsIndividualSettleModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // For add transactions portion
@@ -36,6 +37,11 @@ function GroupInfo() {
 
   // For settle up portion
   const [settlement, setSettlement] = useState({});
+  const [currentSettlement, setCurrentSettlement] = useState(null);
+  const [settleAmount, setSettleAmount] = useState(0);
+  const [payer, setPayer] = useState("");
+  const [receiver, setReceiver] = useState("");
+
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout } = useAppNavigation();
 
@@ -138,10 +144,16 @@ function GroupInfo() {
   const handleOpenSettleUpModal = () => {
     setIsSettleUpModalOpen(true);
   };
+  const handleOpenIndividualSettleUpModal = (s) => {
+    setIsSettleUpModalOpen(false);
+    setCurrentSettlement(s);
+    setSettleAmount(s.amount);
+    setIsIndividualSettleModalOpen(true);
+  };
   const handleOpenSettingsModal = () => {
     setIsSettingsModalOpen(true);
   };
-  const handleCloseModal = () => {
+  const handleCloseTransactionModal = () => {
     setIsAddTransactionModalOpen(false);
     setPayerAmounts({});
     setPeopleAmounts({});
@@ -153,6 +165,11 @@ function GroupInfo() {
   };
   const handleCloseSettleUpModal = () => {
     setIsSettleUpModalOpen(false);
+  };
+  const handleCloseIndividualSettleUpModal = () => {
+    setDescription('');
+    setIsIndividualSettleModalOpen(false);
+    setIsSettleUpModalOpen(true);
   };
   const handleCloseSettingsModal = () => {
     setIsSettingsModalOpen(false);
@@ -216,7 +233,7 @@ function GroupInfo() {
   const handleTransactionSubmit = async () => {
     await handleCreateTransaction();
     await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
-    handleCloseModal();
+    handleCloseTransactionModal();
   };
 
 
@@ -233,7 +250,8 @@ function GroupInfo() {
         description: description,
         payer: payerAmounts,
         people: peopleAmounts,
-        totalAmount: totalAmount
+        totalAmount: totalAmount,
+        type: "transaction"
       });
       console.log('Transaction logged.');
     } catch (error) {
@@ -277,9 +295,8 @@ function GroupInfo() {
     }
   };
 
-
   // ============ Generate Debtor and Creditors ============ 
-  const calculateSettlements = () => {
+  const calculateDebtorAndCreditor = () => {
     if (!groupData || !groupData.balances) {
       console.log("groupData or balances is not ready yet.");
       return;
@@ -298,11 +315,11 @@ function GroupInfo() {
     creditors.sort((a, b) => b.balance - a.balance);
     debtors.sort((a, b) => b.balance - a.balance);
   
-    const settlements = [];
+    const debtorAndCreditor = [];
     let i = 0; // Pointer for creditors
     let j = 0; // Pointer for debtors
   
-    // Process settlements
+    // Process debtorAndCreditor
     while (i < creditors.length && j < debtors.length) {
       const creditor = creditors[i];
       const debtor = debtors[j];
@@ -311,7 +328,7 @@ function GroupInfo() {
       const amount = Math.min(creditor.balance, debtor.balance);
   
       // Create a settlement transaction
-      settlements.push({
+      debtorAndCreditor.push({
         from: debtor.userId,
         to: creditor.userId,
         amount,
@@ -326,18 +343,64 @@ function GroupInfo() {
       if (debtor.balance === 0) j++;
     }
 
-    setSettlement(settlements);
+    setSettlement(debtorAndCreditor);
   };
   // ============ Calling Generate Debtor and Creditors ============ 
   useEffect(() => {
-    calculateSettlements();
+    calculateDebtorAndCreditor();
   }, [groupData]);
 
-
-  // ============ When Settlement is Clicked ============
-  const handleSettlement = () => {
-    //New modal opens and it has a settle fully, and settle partially button (with input field for amount)
+  // ============ Submit Settlement ============ 
+  const handleSettlementSubmit = async () => {
+    await handleCreateSettlement();
+    await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
+    handleCloseSettleUpModal();
   };
+
+  // ============ Create New Settlement Entry in Firebase ============ 
+  const handleCreateSettlement = async () => {
+    setIsLoading(true);
+
+    // Add entry in  "Transactions" db.
+    const transactionsCollection = collection(db, 'transactions');
+    try {
+      const transactionsDocRef = await addDoc(transactionsCollection, {
+        groupID: groupId,
+        description: "S - " + description,
+        transactionTime: new Date(),
+        payer: currentSettlement.from,
+        receiver: currentSettlement.to,
+        totalAmount: settleAmount,
+        type: "settlement"
+      });
+      console.log('Settlement logged.');
+    } catch (error) {
+      console.error('Error logging settlement:', error);
+    } 
+
+    // Update balances object in "Group" db.
+    const updatedBalances = groupData.balances;
+    if (!updatedBalances[currentSettlement.from]) updatedBalances[currentSettlement.from] = 0;
+    updatedBalances[currentSettlement.from] += parseFloat(settleAmount);
+    if (!updatedBalances[currentSettlement.to]) updatedBalances[currentSettlement.to] = 0;
+    updatedBalances[currentSettlement.to] -= parseFloat(settleAmount);
+
+
+    try {
+      const docRef = doc(db, "groups", groupId);
+      await updateDoc(docRef, { balances: updatedBalances });
+      setGroupData(prevGroupData => ({
+        ...prevGroupData,
+        balances: updatedBalances
+      }));
+      console.log('Balances updated.');
+    } catch (error) {
+      console.error('Error updating balances:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+    
 
   // ============ Accept and Request Join Requests ============ 
   const handleAcceptRequest = async (request) => {
@@ -418,19 +481,27 @@ function GroupInfo() {
               <div>
                 {transactions.length > 0 ? (
                   transactions.map((transaction, index) => (
-                    <div key={index} className="transaction">
+                    <div key={index} className={transaction.type}>
                       <h3>{transaction.description}</h3>
-                      <p>Total Amount: ${transaction.totalAmount}</p>
-                      {/* Display each payer on a new line */}
-                      <h4>Payer(s):</h4>
-                      {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
-                        <p key={idx}>{usernames[payerID]}: ${amount}</p>
-                      ))}
-                      {/* Display each person involved on a new line */}
-                      <h4>People Involved:</h4>
-                      {Object.entries(transaction.people).map(([personID, amount], idx) => (
-                        <p key={idx}>{usernames[personID]}: ${amount}</p>
-                      ))}
+                      {transaction.type === "transaction" ? (
+                        <>
+                          <p>Total Amount: ${transaction.totalAmount}</p>
+                          <h4>Payer(s):</h4>
+                          {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
+                            <p key={idx}>{usernames[payerID]}: ${amount}</p>
+                          ))}
+                          <h4>People Involved:</h4>
+                          {Object.entries(transaction.people).map(([personID, amount], idx) => (
+                            <p key={idx}>{usernames[personID]}: ${amount}</p>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          <p><strong>{usernames[transaction.payer]}</strong> has paid <strong>{usernames[transaction.receiver]}</strong>: ${transaction.totalAmount}.</p>
+                        </>
+                      )
+                    }
+
                       <p>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
                     </div>
                   ))
@@ -450,14 +521,11 @@ function GroupInfo() {
         </div>
 
       </div>
-      {/* Modal for Add Transaction */}
       {isAddTransactionModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
-            <button className="modal-close-btn" onClick={handleCloseModal}>X</button>
+            <button className="modal-close-btn" onClick={handleCloseTransactionModal}>X</button>
             <h2>Add Transaction</h2>
-
-            {/* Add a new div wrapper for scrollable content */}
             <div className="modal-content">
               <div className="form-group">
                 <label htmlFor="total-amount">Total Amount:</label>
@@ -480,7 +548,6 @@ function GroupInfo() {
                   autoComplete='off'
                 />
               </div>
-              {/* Payer Section */}
               <h3>Payer:</h3>
               {groupData.members.map((member) => (
                 <div key={member} className="payer-selection">
@@ -497,7 +564,6 @@ function GroupInfo() {
               ))}
               <div>Remaining Amount: {remainingAmount}</div>
               <br></br>
-              {/* People Involved Section */}
               <h3>People Involved:</h3>
               {groupData.members.map((member) => (
                 <div key={member} className="people-involved-selection">
@@ -541,12 +607,50 @@ function GroupInfo() {
             <h2>Settle Up</h2>
             <label htmlFor="setupField1">Pending Transactions:</label>
             {settlement.map((s) => (
-              <button key={s.from + "_" + s.to} className="settlement" onClick={handleSettlement}>
+              <button key={s.from + "_" + s.to} className="settlement-entry" onClick={() => handleOpenIndividualSettleUpModal(s)}>
                 <span>
                   {s.from === currentUserId ? "You" : usernames[s.from]} owes {s.to === currentUserId ? "you" : usernames[s.to]}: <strong>${s.amount}</strong>
                 </span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+      {isIndividualSettleModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="modal-back-btn" onClick={handleCloseIndividualSettleUpModal}>←</button>
+            <h2>Settle Amount</h2>
+            <div className="settlement-entry">
+              <span>
+                {currentSettlement.from === currentUserId ? "You" : usernames[currentSettlement.from]} owes {currentSettlement.to === currentUserId ? "you" : usernames[currentSettlement.to]}: <strong>${currentSettlement.amount}</strong>
+              </span>
+            </div>
+            <div className="form-group">
+              <label htmlFor="total-amount">Description:</label>
+              <input
+                type="text"
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onFocus={(e) => e.target.select()}
+                autoComplete='off'
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="settleAmountInput">Enter Amount to Settle:</label>
+              <input 
+                type="number" 
+                id="settleAmountInput"
+                value={settleAmount}
+                min="0"
+                max={currentSettlement.amount}
+                onChange={(e) => setSettleAmount(Math.min(e.target.value, currentSettlement.amount))}
+              />
+            </div>
+            <button className="function-btn" onClick={handleSettlementSubmit}>
+              {settleAmount < currentSettlement.amount ? "Settle Partially" : "Settle All"}
+            </button>
           </div>
         </div>
       )}
