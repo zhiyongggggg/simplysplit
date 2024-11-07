@@ -354,7 +354,7 @@ function GroupInfo() {
   const handleSettlementSubmit = async () => {
     await handleCreateSettlement();
     await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
-    handleCloseSettleUpModal();
+    handleCloseIndividualSettleUpModal();
   };
 
   // ============ Create New Settlement Entry in Firebase ============ 
@@ -488,11 +488,11 @@ function GroupInfo() {
                           <p>Total Amount: ${transaction.totalAmount}</p>
                           <h4>Payer(s):</h4>
                           {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
-                            <p key={idx}>{usernames[payerID]}: ${amount}</p>
+                            <p key={idx}>{payerID === currentUserId ? "You" : usernames[payerID]}: ${amount}</p>
                           ))}
                           <h4>People Involved:</h4>
                           {Object.entries(transaction.people).map(([personID, amount], idx) => (
-                            <p key={idx}>{usernames[personID]}: ${amount}</p>
+                            <p key={idx}>{personID === currentUserId ? "You" : usernames[personID]}: ${amount}</p>
                           ))}
                         </>
                       ) : (
@@ -594,7 +594,9 @@ function GroupInfo() {
                 <button className="function-btn" onClick={splitEqually}>Split Equally</button>
               </div>
               <div className="function-button-row">
-                <button className="submit-btn" onClick={handleTransactionSubmit}>Submit</button>
+                <button className="submit-btn" onClick={handleTransactionSubmit}>
+                  {isLoading ? "Submitting..." : "Submit"}
+                </button>
               </div>
             </div>
           </div>
@@ -609,7 +611,7 @@ function GroupInfo() {
             {settlement.map((s) => (
               <button key={s.from + "_" + s.to} className="settlement-entry" onClick={() => handleOpenIndividualSettleUpModal(s)}>
                 <span>
-                  {s.from === currentUserId ? "You" : usernames[s.from]} owes {s.to === currentUserId ? "you" : usernames[s.to]}: <strong>${s.amount}</strong>
+                  {s.from === currentUserId ? "You owe" : usernames[s.from] + " owes "} {s.to === currentUserId ? "you" : usernames[s.to]}: <strong>${s.amount}</strong>
                 </span>
               </button>
             ))}
@@ -623,7 +625,7 @@ function GroupInfo() {
             <h2>Settle Amount</h2>
             <div className="settlement-entry">
               <span>
-                {currentSettlement.from === currentUserId ? "You" : usernames[currentSettlement.from]} owes {currentSettlement.to === currentUserId ? "you" : usernames[currentSettlement.to]}: <strong>${currentSettlement.amount}</strong>
+                {currentSettlement.from === currentUserId ? "You owe" : usernames[currentSettlement.from] + " owes "} {currentSettlement.to === currentUserId ? "you" : usernames[currentSettlement.to]}: <strong>${currentSettlement.amount}</strong>
               </span>
             </div>
             <div className="form-group">
@@ -649,7 +651,7 @@ function GroupInfo() {
               />
             </div>
             <button className="function-btn" onClick={handleSettlementSubmit}>
-              {settleAmount < currentSettlement.amount ? "Settle Partially" : "Settle All"}
+              {isLoading ? "Settling..." : (settleAmount < currentSettlement.amount) ? "Settle Partially" : "Settle All"}
             </button>
           </div>
         </div>
