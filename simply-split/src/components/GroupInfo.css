@@ -324,6 +324,20 @@
 
 .groupinfo .submit-btn {
   width: 200px;
+  background-color: #636363;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+  cursor: not-allowed;
+}
+
+.groupinfo .submit-btn.enabled {
+  width: 200px;
   background-color: #5b53ff;
   color: white;
   border: none;
@@ -335,7 +349,7 @@
   margin-top: 20px;
 }
 
-.groupinfo .submit-btn:hover {
+.groupinfo .submit-btn.enabled:hover {
   background-color: #5a52e0; /* Darker shade on hover */
 }
 

@@ -17,6 +17,7 @@ function GroupInfo() {
   const [groupDoc, setGroupDoc] = useState(null);
   const [groupData, setGroupData] = useState(null);
   const [usernames, setUsernames] = useState({});
+  const [invalidState, setInvalidState] = useState(true);
   const [transactions, setTransactions] = useState([]);
 
   // Modals
@@ -48,6 +49,20 @@ function GroupInfo() {
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout } = useAppNavigation();
 
+
+  // ============ Input error checking ============ 
+  useEffect(() => {
+    const checkValidityState =  () => {
+      if (totalAmount != 0 && remainingAmount < 0.03 && unsettledAmount < 0.03) {
+        setInvalidState(false);
+      } else if (settleAmount != 0) {
+        setInvalidState(false);
+      } else {
+        setInvalidState(true);
+      }
+    };
+    checkValidityState();
+  }, [remainingAmount, unsettledAmount, totalAmount, settleAmount]);
 
   // ============ Fetch group document ============ 
   const fetchGroupDoc = async () => {
@@ -198,7 +213,7 @@ function GroupInfo() {
   // ============ Updating the "Unsettled Amount" ============ 
   useEffect(() => {
     const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
-    setUnsettledAmount(totalAmount - totalPeopleAmount);
+    setUnsettledAmount(parseFloat((totalAmount - totalPeopleAmount).toFixed(2)));
   }, [peopleAmounts, totalAmount]);
 
 
@@ -253,6 +268,27 @@ function GroupInfo() {
   const handleCreateTransaction = async () => {
     setIsLoading(true);
 
+      // Check for input errors and update balances object in "Group" db.
+      const currentBalances = {};
+      Object.entries(payerAmounts).forEach(([userId, amount]) => {
+        if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
+        if (amount === "") {
+          delete payerAmounts[userId];
+          return;
+        }
+        payerAmounts[userId] = parseFloat(amount).toString();;
+        currentBalances[userId].paid += parseFloat(amount);
+      });
+      Object.entries(peopleAmounts).forEach(([userId, amount]) => {
+        if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
+        if (amount === "") {
+          delete peopleAmounts[userId];
+          return;
+        }
+        peopleAmounts[userId] = parseFloat(amount).toString();;
+        currentBalances[userId].shouldPay += parseFloat(amount);
+      });
+
     // Add entry in  "Transactions" db.
     const transactionsCollection = collection(db, 'transactions');
     try {
@@ -269,17 +305,6 @@ function GroupInfo() {
     } catch (error) {
       console.error('Error logging transaction:', error);
     } 
-
-    // Update balances object in "Group" db.
-    const currentBalances = {};
-    Object.entries(payerAmounts).forEach(([userId, amount]) => {
-      if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
-      currentBalances[userId].paid += parseFloat(amount);
-    });
-    Object.entries(peopleAmounts).forEach(([userId, amount]) => {
-      if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
-      currentBalances[userId].shouldPay += parseFloat(amount);
-    });
 
     const shouldPayBalances = {};
     Object.entries(currentBalances).forEach(([userId, { paid, shouldPay }]) => {
@@ -319,19 +344,19 @@ function GroupInfo() {
     const balances = groupData.balances;
     const creditors = [];
     const debtors = [];
-    
+
     Object.entries(balances).forEach(([userId, balance]) => {
       if (balance > 0) creditors.push({ userId, balance });
       else if (balance < 0) debtors.push({ userId, balance: -balance });
     });
-  
+
     creditors.sort((a, b) => b.balance - a.balance);
     debtors.sort((a, b) => b.balance - a.balance);
   
     const debtorAndCreditor = [];
     let i = 0; // Pointer for creditors
     let j = 0; // Pointer for debtors
-  
+    
     // Process debtorAndCreditor
     while (i < creditors.length && j < debtors.length) {
       const creditor = creditors[i];
@@ -339,7 +364,6 @@ function GroupInfo() {
   
       // Determine the settlement amount
       const amount = Math.min(creditor.balance, debtor.balance);
-  
       // Create a settlement transaction
       debtorAndCreditor.push({
         payer: debtor.userId,
@@ -348,14 +372,13 @@ function GroupInfo() {
       });
   
       // Adjust the balances
-      creditor.balance -= amount;
-      debtor.balance -= amount;
+      creditor.balance = parseFloat((creditor.balance - amount).toFixed(2));
+      debtor.balance = parseFloat((debtor.balance - amount).toFixed(2));
   
       // Move pointers if one party's balance is settled
       if (creditor.balance === 0) i++;
       if (debtor.balance === 0) j++;
     }
-
     setSettlement(debtorAndCreditor);
   };
   // ============ Calling Generate Debtor and Creditors ============ 
@@ -659,8 +682,8 @@ function GroupInfo() {
             <p>Date: {deleteTransaction.transactionTime?.toDate().toLocaleString()}</p>
           </div>
             <div className="function-button-row">
-                <button className="function-btn" onClick={handleDeletionSubmit}>Confirm</button>
-                <button className="function-btn" onClick={handleCloseConfirmDeleteModal}>Cancel</button>
+                <button className="submit-btn enabled" onClick={handleDeletionSubmit}>Confirm</button>
+                <button className="submit-btn enabled" onClick={handleCloseConfirmDeleteModal}>Cancel</button>
             </div>
           </div>
         </div>
@@ -734,11 +757,11 @@ function GroupInfo() {
                 />
               </div>
               <div className="function-button-row">
-                <button className="function-btn" onClick={applyTax}>Apply Tax</button>
-                <button className="function-btn" onClick={splitEqually}>Split Equally</button>
+                <button className="submit-btn enabled" onClick={applyTax}>Apply Tax</button>
+                <button className="submit-btn enabled" onClick={splitEqually}>Split Equally</button>
               </div>
               <div className="function-button-row">
-                <button className="submit-btn" onClick={handleTransactionSubmit}>
+                <button className={`submit-btn ${invalidState ? '' : 'enabled'}`} disabled={invalidState} onClick={handleTransactionSubmit}>
                   {isLoading ? "Submitting..." : "Submit"}
                 </button>
               </div>
@@ -779,7 +802,6 @@ function GroupInfo() {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                onFocus={(e) => e.target.select()}
                 autoComplete='off'
               />
             </div>
@@ -792,11 +814,14 @@ function GroupInfo() {
                 min="0"
                 max={currentSettlement.amount}
                 onChange={(e) => setSettleAmount(Math.min(e.target.value, currentSettlement.amount))}
+                onFocus={(e) => e.target.select()}
               />
             </div>
-            <button className="function-btn" onClick={handleSettlementSubmit}>
-              {isLoading ? "Settling..." : (settleAmount < currentSettlement.amount) ? "Settle Partially" : "Settle All"}
-            </button>
+            <div className="function-button-row">
+              <button className={`submit-btn ${invalidState ? '' : 'enabled'}`} disabled={invalidState} onClick={handleSettlementSubmit}>
+                {isLoading ? "Settling..." : (settleAmount < currentSettlement.amount) ? "Settle Partially" : "Settle All"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -822,7 +847,7 @@ function GroupInfo() {
               </div>
             ))}
             <div className="function-button-row">
-              <button className="submit-btn" onClick={handleLeaveGroup}>
+              <button className="submit-btn enabled" onClick={handleLeaveGroup}>
                 {isLoading ? "Leaving" : "Leave Group"}
               </button>
             </div>
