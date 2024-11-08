@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom'; 
 import { db } from './firebase'; 
 import { useAppNavigation } from './navigation';
-import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore'; // Firestore functions
+import { collection, addDoc, query, where, doc, getDoc, getDocs, updateDoc, deleteDoc, arrayRemove, arrayUnion } from 'firebase/firestore'; // Firestore functions
 
 function GroupInfo() {
   // Initialization
@@ -307,9 +307,6 @@ function GroupInfo() {
     }
   };
 
-  const handleDeleteTransaction = () => {
-    // TO DO - use deleteTransaction state
-  };
 
   // ============ Generate Debtor and Creditors ============ 
   const calculateDebtorAndCreditor = () => {
@@ -345,8 +342,8 @@ function GroupInfo() {
   
       // Create a settlement transaction
       debtorAndCreditor.push({
-        from: debtor.userId,
-        to: creditor.userId,
+        payer: debtor.userId,
+        receiver: creditor.userId,
         amount,
       });
   
@@ -384,8 +381,8 @@ function GroupInfo() {
         groupID: groupId,
         description: "S - " + description,
         transactionTime: new Date(),
-        payer: currentSettlement.from,
-        receiver: currentSettlement.to,
+        payer: currentSettlement.payer,
+        receiver: currentSettlement.receiver,
         totalAmount: settleAmount,
         type: "settlement"
       });
@@ -396,10 +393,10 @@ function GroupInfo() {
 
     // Update balances object in "Group" db.
     const updatedBalances = groupData.balances;
-    if (!updatedBalances[currentSettlement.from]) updatedBalances[currentSettlement.from] = 0;
-    updatedBalances[currentSettlement.from] += parseFloat(settleAmount);
-    if (!updatedBalances[currentSettlement.to]) updatedBalances[currentSettlement.to] = 0;
-    updatedBalances[currentSettlement.to] -= parseFloat(settleAmount);
+    if (!updatedBalances[currentSettlement.payer]) updatedBalances[currentSettlement.payer] = 0;
+    updatedBalances[currentSettlement.payer] += parseFloat(settleAmount);
+    if (!updatedBalances[currentSettlement.receiver]) updatedBalances[currentSettlement.receiver] = 0;
+    updatedBalances[currentSettlement.receiver] -= parseFloat(settleAmount);
 
 
     try {
@@ -416,7 +413,73 @@ function GroupInfo() {
       setIsLoading(false);
     }
   };
-    
+  
+
+  // ============ Submit Deletion ============ 
+  const handleDeletionSubmit = async () => {
+    await handleDeleteTransaction();
+    await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
+    handleCloseConfirmDeleteModal();
+  };
+
+
+  // ============ Delete Transaction Entry in Firebase ============ 
+  const handleDeleteTransaction = async () => {
+    setIsLoading(true);
+
+    const updatedBalances = groupData.balances;
+    if (deleteTransaction.type === "settlement") {
+      if (!updatedBalances[deleteTransaction.payer]) updatedBalances[deleteTransaction.payer] = 0;
+      updatedBalances[deleteTransaction.payer] -= parseFloat(deleteTransaction.totalAmount); //Minus instead of plus
+      if (!updatedBalances[deleteTransaction.receiver]) updatedBalances[deleteTransaction.receiver] = 0;
+      updatedBalances[deleteTransaction.receiver] += parseFloat(deleteTransaction.totalAmount); //Plus instead of minus
+    } else {
+      const currentBalances = {};
+      Object.entries(deleteTransaction.payer).forEach(([userId, amount]) => {
+        if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
+        currentBalances[userId].paid += parseFloat(amount);
+      });
+      Object.entries(deleteTransaction.people).forEach(([userId, amount]) => {
+        if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
+        currentBalances[userId].shouldPay += parseFloat(amount);
+      });
+
+      const shouldPayBalances = {};
+      Object.entries(currentBalances).forEach(([userId, { paid, shouldPay }]) => {
+        shouldPayBalances[userId] = paid - shouldPay;
+      });
+
+      Object.entries(shouldPayBalances).forEach(([userId, amount]) => {
+        if (!updatedBalances[userId]) updatedBalances[userId] = 0;
+        updatedBalances[userId] -= parseFloat(amount); //Minus instead of plus
+      });
+    }
+
+    try {
+      const docRef = doc(db, "groups", groupId);
+      await updateDoc(docRef, { balances: updatedBalances });
+      setGroupData(prevGroupData => ({
+        ...prevGroupData,
+        balances: updatedBalances
+      }));
+      console.log('Delete updated.');
+    } catch (error) {
+      console.error('Error updating balances (deletion):', error);
+    } 
+
+    // Remove entry in  "Transactions" db.
+    const transactionsCollection = collection(db, 'transactions');
+    try {
+      const transactionDocRef = doc(transactionsCollection, deleteTransaction.id);
+      await deleteDoc(transactionDocRef);
+      console.log("Transaction deleted successfully.");
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   // ============ Accept and Request Join Requests ============ 
   const handleAcceptRequest = async (request) => {
@@ -516,7 +579,7 @@ function GroupInfo() {
                         </>
                       ) : (
                         <>
-                          <p><strong>{usernames[transaction.payer]}</strong> has paid <strong>{usernames[transaction.receiver]}</strong>: ${transaction.totalAmount}.</p>
+                          <p>{transaction.payer === currentUserId ? "You have" : usernames[transaction.payer] + " has"} paid <strong>{transaction.receiver === currentUserId ? "you" : usernames[transaction.receiver]}</strong>: ${transaction.totalAmount}.</p>
                         </>
                       )
                     }
@@ -568,7 +631,7 @@ function GroupInfo() {
             <p>Date: {deleteTransaction.transactionTime?.toDate().toLocaleString()}</p>
           </div>
             <div className="function-button-row">
-                <button className="function-btn" onClick={handleDeleteTransaction}>Confirm</button>
+                <button className="function-btn" onClick={handleDeletionSubmit}>Confirm</button>
                 <button className="function-btn" onClick={handleCloseConfirmDeleteModal}>Cancel</button>
             </div>
           </div>
@@ -662,9 +725,9 @@ function GroupInfo() {
             <h2>Settle Up</h2>
             <label htmlFor="setupField1">Pending Transactions:</label>
             {settlement.map((s) => (
-              <button key={s.from + "_" + s.to} className="settlement-entry" onClick={() => handleOpenIndividualSettleUpModal(s)}>
+              <button key={s.payer + "_" + s.receiver} className="settlement-entry" onClick={() => handleOpenIndividualSettleUpModal(s)}>
                 <span>
-                  {s.from === currentUserId ? "You owe" : usernames[s.from] + " owes "} {s.to === currentUserId ? "you" : usernames[s.to]}: <strong>${s.amount}</strong>
+                  {s.payer === currentUserId ? "You owe" : usernames[s.payer] + " owes "} {s.receiver === currentUserId ? "you" : usernames[s.receiver]}: <strong>${s.amount}</strong>
                 </span>
               </button>
             ))}
@@ -678,7 +741,7 @@ function GroupInfo() {
             <h2>Settle Amount</h2>
             <div className="settlement-entry">
               <span>
-                {currentSettlement.from === currentUserId ? "You owe" : usernames[currentSettlement.from] + " owes "} {currentSettlement.to === currentUserId ? "you" : usernames[currentSettlement.to]}: <strong>${currentSettlement.amount}</strong>
+                {currentSettlement.payer === currentUserId ? "You owe" : usernames[currentSettlement.payer] + " owes "} {currentSettlement.receiver === currentUserId ? "you" : usernames[currentSettlement.receiver]}: <strong>${currentSettlement.amount}</strong>
               </span>
             </div>
             <div className="form-group">
