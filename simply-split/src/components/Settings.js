@@ -41,14 +41,7 @@ function Settings() {
 
       <div className="body">
         <div className="userlist">
-          {users.map((user) => (
-            <button key={user.username} className="user">
-              <h2>{user.username}</h2> 
-            </button>
-          ))}
-          <button className="settings-btn">
-            Settings
-          </button>
+          LAZY DO LOL.
         </div>
       </div>
     </div>

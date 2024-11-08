@@ -306,21 +306,6 @@
   justify-content: space-around;
 }
 
-.groupinfo .function-btn {
-  background-color: #837dff;
-  color: white;
-  border: none;
-  padding: 7px 25px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-  margin-top: 5px;
-}
-
-.groupinfo .function-btn:hover {
-  background-color: #5a52e0;
-}
 
 .groupinfo .submit-btn {
   width: 200px;
