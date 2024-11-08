@@ -504,10 +504,8 @@ function GroupInfo() {
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
-        const currentGroups = userDoc.data().groupsInvolved || [];
-        const updatedGroups = [...currentGroups, groupData.id];
         await updateDoc(userDocRef, {
-          groupsInvolved: updatedGroups
+          groupsInvolved: arrayUnion(groupData.id)
         });
       }
     } catch (error) {
@@ -527,6 +525,36 @@ function GroupInfo() {
     } catch (error) {
       console.error('Error rejecting request:', error);
     }
+  };
+
+  // ============ Leave Group ============ 
+  const handleLeaveGroup = async () => {
+    setIsLoading(true);
+    try {
+      setIsLoading(true); 
+      await updateDoc(groupDoc.ref, {
+        members: arrayRemove(currentUserId),
+      });
+
+      await fetchGroupDoc(); // Necessary to update the group data states to reflect updated requests
+      console.log("Group Data: Left group successfully.");
+      setIsLoading(false); 
+    } catch (error) {
+      console.error('Group Data: Error leaving group:', error);
+    }
+    try {
+      const userDocRef = doc(db, 'users', currentUserId);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        await updateDoc(userDocRef, {
+          groupsInvolved: arrayRemove(groupData.id),
+        });
+      }
+    } catch (error) {
+      console.error('Error updating individual doc for leaving group:', error);
+    }
+    handleHome();
   };
   
   return (
@@ -793,6 +821,11 @@ function GroupInfo() {
                 </span>
               </div>
             ))}
+            <div className="function-button-row">
+              <button className="submit-btn" onClick={handleLeaveGroup}>
+                {isLoading ? "Leaving" : "Leave Group"}
+              </button>
+            </div>
           </div>
         </div>
       )}
