@@ -36,25 +36,32 @@ function GroupInfo() {
   // For add transactions portion
   const [payerAmounts, setPayerAmounts] = useState({}); // Amount of money paid by each user
   const [peopleAmounts, setPeopleAmounts] = useState({}); // Amount of money to be paid by each user
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState("0");
   const [description, setDescription] = useState("");
-  const [remainingAmount, setRemainingAmount] = useState(0);
-  const [unsettledAmount, setUnsettledAmount] = useState(0);
-  const [taxRate, setTaxRate] = useState(0); 
+  const [remainingAmount, setRemainingAmount] = useState("0");
+  const [unsettledAmount, setUnsettledAmount] = useState("0");
+  const [taxRate, setTaxRate] = useState("0"); 
 
   // For settle up portion
   const [settlement, setSettlement] = useState({});
   const [currentSettlement, setCurrentSettlement] = useState(null);
-  const [settleAmount, setSettleAmount] = useState(0);
+  const [settleAmount, setSettleAmount] = useState("0");
 
   
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout } = useAppNavigation();
 
 
+  // Round to 2DP
+  const roundTo2Dp = (num) => Math.round(num * 100) / 100;
+  const roundTo2DpStr = (num) => {
+    const rounded = Math.round(num * 100) / 100;
+    return rounded.toString();
+  }
+
   // ============ Input error checking ============ 
   useEffect(() => {
     const checkValidityState =  () => {
-      if (totalAmount != 0 && remainingAmount < 0.03 && unsettledAmount < 0.03) {
+      if (totalAmount != 0 && parseFloat(remainingAmount) < 0.03 && parseFloat(unsettledAmount) < 0.03) {
         setInvalidState(false);
       } else if (settleAmount != 0) {
         setInvalidState(false);
@@ -184,11 +191,11 @@ function GroupInfo() {
     setIsAddTransactionModalOpen(false);
     setPayerAmounts({});
     setPeopleAmounts({});
-    setTotalAmount(0);
+    setTotalAmount("0");
     setDescription('');
-    setRemainingAmount(0);
-    setUnsettledAmount(0);
-    setTaxRate(0);
+    setRemainingAmount("0");
+    setUnsettledAmount("0");
+    setTaxRate("0");
   };
   const handleCloseSettleUpModal = () => {
     setIsSettleUpModalOpen(false);
@@ -207,14 +214,14 @@ function GroupInfo() {
   // ============ Updating the "Remaining Amount" ============ 
   useEffect(() => {
     const totalPayerAmount = Object.values(payerAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0); // Loops through the values of the dictionary (object) and sum them up, storing the number under acc,
-    setRemainingAmount(totalAmount - totalPayerAmount);                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
+    setRemainingAmount(roundTo2DpStr(parseFloat(totalAmount) - totalPayerAmount));                                                             //each iteration the amount is "amount", if amount is null it will be auto assigned as 0. The ,0 represents initial value of acc
   }, [payerAmounts, totalAmount]);
 
 
   // ============ Updating the "Unsettled Amount" ============ 
   useEffect(() => {
     const totalPeopleAmount = Object.values(peopleAmounts).reduce((acc, amount) => acc + parseFloat(amount || 0), 0);
-    setUnsettledAmount(parseFloat((totalAmount - totalPeopleAmount).toFixed(2)));
+    setUnsettledAmount(roundTo2DpStr(parseFloat(totalAmount) - totalPeopleAmount));
   }, [peopleAmounts, totalAmount]);
 
 
@@ -230,12 +237,12 @@ function GroupInfo() {
   // ============ Split Unsettled Sum Equally ============ 
   const splitEqually = () => {
     const peopleInvolved = groupData.members.filter(
-      member => !peopleAmounts[member] || peopleAmounts[member] == 0
+      member => !peopleAmounts[member] || peopleAmounts[member] == "0"
     );
     if (peopleInvolved.length === 0) {
       return; // No one has 0 input, exit the function
     }
-    const splitAmount = (unsettledAmount / peopleInvolved.length).toFixed(2);
+    const splitAmount = roundTo2DpStr(parseFloat(unsettledAmount) / peopleInvolved.length);
     const updatedAmounts = { ...peopleAmounts };
     // Update the amounts for people involved who have 0
     peopleInvolved.forEach(member => {
@@ -251,7 +258,7 @@ function GroupInfo() {
     const updatedAmounts = {};
     // Apply tax to each person involved
     for (const member in peopleAmounts) {
-      updatedAmounts[member] = (parseFloat(peopleAmounts[member] || 0) * taxMultiplier).toFixed(2);
+      updatedAmounts[member] = roundTo2DpStr(parseFloat(peopleAmounts[member] || 0) * taxMultiplier);
     }
     setPeopleAmounts(updatedAmounts);
   };
@@ -278,8 +285,7 @@ function GroupInfo() {
           delete payerAmounts[userId];
           return;
         }
-        payerAmounts[userId] = parseFloat(amount).toFixed(2).toString();;
-        currentBalances[userId].paid += payerAmounts[userId];
+        currentBalances[userId].paid = roundTo2Dp(currentBalances[userId].paid + parseFloat(payerAmounts[userId]));
       });
       Object.entries(peopleAmounts).forEach(([userId, amount]) => {
         if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
@@ -287,8 +293,7 @@ function GroupInfo() {
           delete peopleAmounts[userId];
           return;
         }
-        peopleAmounts[userId] = parseFloat(amount).toFixed(2).toString();;
-        currentBalances[userId].shouldPay += peopleAmounts[userId];
+        currentBalances[userId].shouldPay = roundTo2Dp(currentBalances[userId].shouldPay + parseFloat(peopleAmounts[userId]));
       });
 
     // Add entry in  "Transactions" db.
@@ -310,13 +315,13 @@ function GroupInfo() {
 
     const shouldPayBalances = {};
     Object.entries(currentBalances).forEach(([userId, { paid, shouldPay }]) => {
-      shouldPayBalances[userId] = paid - shouldPay;
+      shouldPayBalances[userId] = roundTo2Dp(paid - shouldPay);
     });
 
     const updatedBalances = groupData.balances;
     Object.entries(shouldPayBalances).forEach(([userId, amount]) => {
-      if (!updatedBalances[userId]) updatedBalances[userId] = 0;
-      updatedBalances[userId] += parseFloat(parseFloat(amount).toFixed(2));
+      if (!updatedBalances[userId]) updatedBalances[userId] = "0";
+      updatedBalances[userId] = roundTo2DpStr(parseFloat(updatedBalances[userId]) + amount);
     });
 
     try {
@@ -334,21 +339,32 @@ function GroupInfo() {
 
 
   // ============ Generate Debtor and Creditors ============ 
-  const calculateDebtorAndCreditor = () => {
+  const calculateDebtorAndCreditor = async () => {
     if (!groupData || !groupData.balances) {
       console.log("groupData or balances is not ready yet.");
       return;
     }
     
-    console.log(groupData);
     const balances = groupData.balances;
     const creditors = [];
     const debtors = [];
 
     Object.entries(balances).forEach(([userId, balance]) => {
-      if (balance > 0) creditors.push({ userId, balance });
-      else if (balance < 0) debtors.push({ userId, balance: -balance });
+      const numericBalance = parseFloat(balance); 
+      if (numericBalance > 0) creditors.push({ userId, balance: numericBalance });
+      else if (numericBalance < 0) debtors.push({ userId, balance: -numericBalance });
     });
+
+    if ((creditors.length == 0 &&  debtors.length != 0) || (debtors.length == 0 && creditors.length != 0)) {
+      setSettlement([]);
+      try {
+        const docRef = doc(db, "groups", groupId);
+        await updateDoc(docRef, { balances: {} });
+        console.log('Balances cleaned.')
+      } catch (error) {
+        console.error('Error cleaning balances:', error);
+      }
+    }
 
     creditors.sort((a, b) => b.balance - a.balance);
     debtors.sort((a, b) => b.balance - a.balance);
@@ -372,8 +388,8 @@ function GroupInfo() {
       });
   
       // Adjust the balances
-      creditor.balance = parseFloat((creditor.balance - amount).toFixed(2));
-      debtor.balance = parseFloat((debtor.balance - amount).toFixed(2));
+      creditor.balance = roundTo2Dp(creditor.balance - amount);
+      debtor.balance = roundTo2Dp(debtor.balance - amount);
   
       // Move pointers if one party's balance is settled
       if (creditor.balance === 0) i++;
@@ -417,10 +433,10 @@ function GroupInfo() {
 
     // Update balances object in "Group" db.
     const updatedBalances = groupData.balances;
-    if (!updatedBalances[currentSettlement.payer]) updatedBalances[currentSettlement.payer] = 0;
-    updatedBalances[currentSettlement.payer] += parseFloat(settleAmount);
-    if (!updatedBalances[currentSettlement.receiver]) updatedBalances[currentSettlement.receiver] = 0;
-    updatedBalances[currentSettlement.receiver] -= parseFloat(settleAmount);
+    if (!updatedBalances[currentSettlement.payer]) updatedBalances[currentSettlement.payer] = "0";
+    updatedBalances[currentSettlement.payer] = roundTo2DpStr(parseFloat(updatedBalances[currentSettlement.payer]) + parseFloat(settleAmount));
+    if (!updatedBalances[currentSettlement.receiver]) updatedBalances[currentSettlement.receiver] = "0";
+    updatedBalances[currentSettlement.receiver] = roundTo2DpStr(parseFloat(updatedBalances[currentSettlement.receiver]) - parseFloat(settleAmount));
 
 
     try {
@@ -451,29 +467,29 @@ function GroupInfo() {
 
     const updatedBalances = groupData.balances;
     if (deleteTransaction.type === "settlement") {
-      if (!updatedBalances[deleteTransaction.payer]) updatedBalances[deleteTransaction.payer] = 0;
-      updatedBalances[deleteTransaction.payer] -= parseFloat(deleteTransaction.totalAmount); //Minus instead of plus
-      if (!updatedBalances[deleteTransaction.receiver]) updatedBalances[deleteTransaction.receiver] = 0;
-      updatedBalances[deleteTransaction.receiver] += parseFloat(deleteTransaction.totalAmount); //Plus instead of minus
-    } else {
+      if (!updatedBalances[deleteTransaction.payer]) updatedBalances[deleteTransaction.payer] = "0";
+      updatedBalances[deleteTransaction.payer] = roundTo2DpStr(parseFloat(updatedBalances[deleteTransaction.payer]) - parseFloat(deleteTransaction.totalAmount)); //Minus instead of plus
+      if (!updatedBalances[deleteTransaction.receiver]) updatedBalances[deleteTransaction.receiver] = "0";
+      updatedBalances[deleteTransaction.receiver] = roundTo2DpStr(parseFloat(updatedBalances[deleteTransaction.receiver]) + parseFloat(deleteTransaction.totalAmount)); //Plus instead of minus
+    } else { // transaction type is "transaction"
       const currentBalances = {};
       Object.entries(deleteTransaction.payer).forEach(([userId, amount]) => {
         if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
-        currentBalances[userId].paid += parseFloat(amount);
+        currentBalances[userId].paid = roundTo2Dp(currentBalances[userId].paid + parseFloat(amount));
       });
       Object.entries(deleteTransaction.people).forEach(([userId, amount]) => {
         if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
-        currentBalances[userId].shouldPay += parseFloat(amount);
+        currentBalances[userId].shouldPay = roundTo2Dp(currentBalances[userId].shouldPay + parseFloat(amount));
       });
 
       const shouldPayBalances = {};
       Object.entries(currentBalances).forEach(([userId, { paid, shouldPay }]) => {
-        shouldPayBalances[userId] = paid - shouldPay;
+        shouldPayBalances[userId] = roundTo2Dp(paid - shouldPay);
       });
 
       Object.entries(shouldPayBalances).forEach(([userId, amount]) => {
-        if (!updatedBalances[userId]) updatedBalances[userId] = 0;
-        updatedBalances[userId] -= parseFloat(amount); //Minus instead of plus
+        if (!updatedBalances[userId]) updatedBalances[userId] = "0";
+        updatedBalances[userId] = roundTo2DpStr(parseFloat(updatedBalances[userId]) - parseFloat(amount)); //Minus instead of plus
       });
     }
 
