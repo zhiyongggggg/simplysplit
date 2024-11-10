@@ -2,6 +2,7 @@ import './GroupInfo.css';
 
 import Sidebar from './Sidebar';
 import deleteIcon from './delete.png';
+import PropagateLoader from "react-spinners/PropagateLoader";
 
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom'; 
@@ -276,8 +277,8 @@ function GroupInfo() {
           delete payerAmounts[userId];
           return;
         }
-        payerAmounts[userId] = parseFloat(amount).toString();;
-        currentBalances[userId].paid += parseFloat(amount);
+        payerAmounts[userId] = parseFloat(amount).toFixed(2).toString();;
+        currentBalances[userId].paid += payerAmounts[userId];
       });
       Object.entries(peopleAmounts).forEach(([userId, amount]) => {
         if (!currentBalances[userId]) currentBalances[userId] = { paid: 0, shouldPay: 0 };
@@ -285,8 +286,8 @@ function GroupInfo() {
           delete peopleAmounts[userId];
           return;
         }
-        peopleAmounts[userId] = parseFloat(amount).toString();;
-        currentBalances[userId].shouldPay += parseFloat(amount);
+        peopleAmounts[userId] = parseFloat(amount).toFixed(2).toString();;
+        currentBalances[userId].shouldPay += peopleAmounts[userId];
       });
 
     // Add entry in  "Transactions" db.
@@ -314,7 +315,7 @@ function GroupInfo() {
     const updatedBalances = groupData.balances;
     Object.entries(shouldPayBalances).forEach(([userId, amount]) => {
       if (!updatedBalances[userId]) updatedBalances[userId] = 0;
-      updatedBalances[userId] += parseFloat(amount);
+      updatedBalances[userId] += parseFloat(parseFloat(amount).toFixed(2));
     });
 
     try {
@@ -602,7 +603,9 @@ function GroupInfo() {
         />
         <div className="body">
           {isLoading ? (
-            <div className="loading-spinner">Loading...</div>
+            <div className="loading-spinner">
+              <PropagateLoader color="#6c63ff" size={25}/>
+            </div>
           ) : !groupData ? (
             <div className="error">Group not found.</div>
           ) : (
@@ -722,6 +725,7 @@ function GroupInfo() {
                   <input
                     type="number"
                     min="0"
+                    step="0.01"
                     value={payerAmounts[member] || 0}
                     onChange={(e) => handlePayerChange(member, e.target.value)}
                     onFocus={(e) => e.target.select()}
@@ -738,6 +742,7 @@ function GroupInfo() {
                   <input
                     type="number"
                     min="0"
+                    step="0.01"
                     value={peopleAmounts[member] || 0}
                     onChange={(e) => handlePeopleChange(member, e.target.value)}
                     onFocus={(e) => e.target.select()}
@@ -812,6 +817,7 @@ function GroupInfo() {
                 id="settleAmountInput"
                 value={settleAmount}
                 min="0"
+                step="0.01"
                 max={currentSettlement.amount}
                 onChange={(e) => setSettleAmount(Math.min(e.target.value, currentSettlement.amount))}
                 onFocus={(e) => e.target.select()}

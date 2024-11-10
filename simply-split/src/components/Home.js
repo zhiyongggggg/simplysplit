@@ -1,6 +1,7 @@
 import './Home.css';
 
 import Sidebar from './Sidebar';
+import PropagateLoader from "react-spinners/PropagateLoader";
 
 import { useState, useEffect } from 'react';
 import { useAppNavigation } from './navigation';
@@ -67,7 +68,9 @@ function Home() {
       <div className="body">
         <h2>Your Groups</h2> {/* Header for groups */}
         {isLoading ? (
-          <div className="loading-spinner">Loading...</div> // Loading spinner
+          <div className="loading-spinner">
+            <PropagateLoader color="#6c63ff" size={25}/>
+          </div>
         ) : groups.length === 0 ? (
           <div className="error">You are not in any groups</div> // Message when no groups are found
         ) : (
