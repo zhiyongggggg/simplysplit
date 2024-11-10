@@ -262,6 +262,7 @@ function GroupInfo() {
     await handleCreateTransaction();
     await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
     handleCloseTransactionModal();
+    setIsLoading(false);
   };
 
 
@@ -328,9 +329,7 @@ function GroupInfo() {
       console.log('Balances updated.');
     } catch (error) {
       console.error('Error updating balances:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
 
@@ -392,6 +391,7 @@ function GroupInfo() {
     await handleCreateSettlement();
     await fetchTransactions(); // Necessary to update the main page such that it includes new transaction
     handleCloseIndividualSettleUpModal();
+    setIsLoading(false);
   };
 
   // ============ Create New Settlement Entry in Firebase ============ 
@@ -403,7 +403,7 @@ function GroupInfo() {
     try {
       const transactionsDocRef = await addDoc(transactionsCollection, {
         groupID: groupId,
-        description: "S - " + description,
+        description: "|| " + description + " ||",
         transactionTime: new Date(),
         payer: currentSettlement.payer,
         receiver: currentSettlement.receiver,
@@ -433,8 +433,6 @@ function GroupInfo() {
       console.log('Balances updated.');
     } catch (error) {
       console.error('Error updating balances:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
   
@@ -766,7 +764,7 @@ function GroupInfo() {
                 <button className="submit-btn enabled" onClick={splitEqually}>Split Equally</button>
               </div>
               <div className="function-button-row">
-                <button className={`submit-btn ${invalidState ? '' : 'enabled'}`} disabled={invalidState} onClick={handleTransactionSubmit}>
+                <button className={`submit-btn ${invalidState || isLoading ? '' : 'enabled'}`} disabled={invalidState || isLoading} onClick={handleTransactionSubmit}>
                   {isLoading ? "Submitting..." : "Submit"}
                 </button>
               </div>
@@ -824,7 +822,7 @@ function GroupInfo() {
               />
             </div>
             <div className="function-button-row">
-              <button className={`submit-btn ${invalidState ? '' : 'enabled'}`} disabled={invalidState} onClick={handleSettlementSubmit}>
+              <button className={`submit-btn ${invalidState || isLoading ? '' : 'enabled'}`} disabled={invalidState || isLoading} onClick={handleSettlementSubmit}>
                 {isLoading ? "Settling..." : (settleAmount < currentSettlement.amount) ? "Settle Partially" : "Settle All"}
               </button>
             </div>
