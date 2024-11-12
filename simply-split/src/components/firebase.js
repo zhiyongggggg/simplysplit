@@ -5,13 +5,13 @@ import { arrayUnion } from 'firebase/firestore';
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyADqKvbqmKc5veLO_udzJdLvaGDl_9POd8",
-    authDomain: "simplysplit-87576.firebaseapp.com",
-    projectId: "simplysplit-87576",
-    storageBucket: "simplysplit-87576.appspot.com",
-    messagingSenderId: "288374291567",
-    appId: "1:288374291567:web:6624febeb83f01c5c6e19a"
-  };
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
