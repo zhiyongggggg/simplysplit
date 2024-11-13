@@ -54,7 +54,7 @@
 
 .groupinfo h3,
 .groupinfo h4 {
-  color: #6c63ff;
+  color: #3c32c0;
 }
 
 .groupinfo .loading-spinner {
@@ -68,23 +68,23 @@
 .groupinfo .transaction {
   padding: 10px;
   margin: 10px 0;
-  border: 2px solid #ccc;
-  border-radius: 15px;
+  border: 1px solid #1f1c4a;
+  border-radius: 7px;
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
-  background-color: #e2fbff;
+  background-color: #ecfdff;
 }
 
 .groupinfo .settlement {
   padding: 10px;
   margin: 10px 0;
-  border: 2px solid #ccc;
-  border-radius: 15px;
+  border: 1px solid #1f1c4a;
+  border-radius: 7px;
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
-  background-color: #e7ffe8;
+  background-color: #f0fff1;
 }
 
 .groupinfo .transettle-item {

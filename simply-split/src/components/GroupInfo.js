@@ -715,6 +715,7 @@ function GroupInfo() {
                 <label htmlFor="total-amount">Total Amount:</label>
                 <input
                   type="number"
+                  inputMode="numeric"
                   id="total-amount"
                   value={totalAmount}
                   onChange={(e) => setTotalAmount(e.target.value)}
@@ -738,6 +739,7 @@ function GroupInfo() {
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
+                    inputMode="numeric"
                     min="0"
                     step="0.01"
                     value={payerAmounts[member] || 0}
@@ -755,6 +757,7 @@ function GroupInfo() {
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
+                    inputMode="numeric"
                     min="0"
                     step="0.01"
                     value={peopleAmounts[member] || 0}
@@ -769,6 +772,7 @@ function GroupInfo() {
                 <label htmlFor="tax-rate">Tax Rate (%):</label>
                 <input
                   type="number"
+                  inputMode="numeric"
                   id="tax-rate"
                   value={taxRate}
                   onChange={(e) => setTaxRate(e.target.value)}
@@ -828,6 +832,7 @@ function GroupInfo() {
               <label htmlFor="settleAmountInput">Enter Amount to Settle:</label>
               <input 
                 type="number" 
+                inputMode="numeric"
                 id="settleAmountInput"
                 value={settleAmount}
                 min="0"
@@ -857,15 +862,21 @@ function GroupInfo() {
               </div>
             ))}
             <label htmlFor="setupField1">Requests:</label>
-            {groupData.requests.map((request) => (
-              <div key={request} className="group-members">
-                <span>{usernames[request]}</span> 
-                <span className="request-actions">
-                  <button className="request-button" onClick={() => handleAcceptRequest(request)}>✔️</button>
-                  <button className="request-button" onClick={() => handleRejectRequest(request)}>❌</button>
-                </span>
-              </div>
-            ))}
+            {
+              !groupData.requests || groupData.requests.length === 0 ? (
+                <div>There are no new request.</div>
+              ) : (
+                groupData.requests.map((requestId) => (
+                  <div key={requestId} className="group-members">
+                    <span>{usernames[requestId] || 'Unknown User'}</span> {/* Fallback for unknown usernames */}
+                    <span className="request-actions">
+                      <button className="request-button" onClick={() => handleAcceptRequest(requestId)}>✔️</button>
+                      <button className="request-button" onClick={() => handleRejectRequest(requestId)}>❌</button>
+                    </span>
+                  </div>
+                ))
+              )
+            }
             <div className="function-button-row">
               <button className="submit-btn enabled" onClick={handleLeaveGroup}>
                 {isLoading ? "Leaving" : "Leave Group"}

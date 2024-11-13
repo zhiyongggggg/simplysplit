@@ -77,7 +77,10 @@ function Home() {
           <div className="grouplist">
             {groups.map((group) => (
               <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupName, group.id, user.uid)}>
-                <h2>{group.groupName}</h2> {/* Display group name or any other detail */}
+                <div className="group-circle">
+                  {group.groupName.charAt(0).toUpperCase()}
+                </div>
+                <h2>{group.groupName}</h2> 
               </button>
             ))}
           </div>

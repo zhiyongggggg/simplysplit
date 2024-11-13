@@ -17,8 +17,13 @@ function Login({ onLogin }) {
     setError('');  // Clear any previous error
 
     try {
+      // Check email input to see if it is valid
+      let tempEmail = email;
+      if (!email.includes('@')) {
+        tempEmail = email + "@gmail.com";
+      }
       // Sign in user with Firebase using email and password
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, tempEmail, password);
       console.log('User logged in:', userCredential.user);
       onLogin(userCredential.user.uid);
       navigate('/home');
@@ -38,7 +43,7 @@ function Login({ onLogin }) {
       <h1>Login to SimplySplit</h1>
       <form onSubmit={handleLogin}>
         <label>
-          Email:
+          Username or Email:
           <input 
             type="text" 
             value={email} 
