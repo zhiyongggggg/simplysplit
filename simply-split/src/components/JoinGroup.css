@@ -54,7 +54,7 @@
   width: 80%;
   max-width: 400px;
   padding: 15px;
-  background-color: #1f1c4a;
+  background-color: #6c63ff;
   color: white;
   border-radius: 10px;
   border: none;
@@ -65,7 +65,7 @@
 }
 
 .joingroup .search-btn:hover {
-  background-color: #6c63ff;
+  background-color: #8079fa;
   transform: translateY(-5px);
 }
 

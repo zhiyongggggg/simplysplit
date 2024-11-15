@@ -419,7 +419,7 @@ function GroupInfo() {
     try {
       const transactionsDocRef = await addDoc(transactionsCollection, {
         groupID: groupId,
-        description: "|| " + description + " ||",
+        description: description,
         transactionTime: new Date(),
         payer: currentSettlement.payer,
         receiver: currentSettlement.receiver,
@@ -632,7 +632,12 @@ function GroupInfo() {
                       <button className="delete-icon" onClick={() => {handleOpenConfirmDeleteModal(transaction)}}>
                         <img src={deleteIcon} alt="Delete" />
                       </button>
-                      <h3>{transaction.description}</h3>
+                      <div className="description-row">
+                        <div className={`${transaction.type + "-circle"}`}>
+                          {transaction.type === "transaction" ? "T" : "S"}
+                        </div>
+                        <h3 className={`${transaction.type + "-h3"}`}>{transaction.description}</h3>
+                      </div>
                       {transaction.type === "transaction" ? (
                         <>
                           <p>Total Amount: ${transaction.totalAmount}</p>
