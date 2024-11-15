@@ -715,7 +715,7 @@ function GroupInfo() {
                 <label htmlFor="total-amount">Total Amount:</label>
                 <input
                   type="number"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   id="total-amount"
                   value={totalAmount}
                   onChange={(e) => setTotalAmount(e.target.value)}
@@ -739,7 +739,7 @@ function GroupInfo() {
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     min="0"
                     step="0.01"
                     value={payerAmounts[member] || 0}
@@ -757,7 +757,7 @@ function GroupInfo() {
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     min="0"
                     step="0.01"
                     value={peopleAmounts[member] || 0}
@@ -772,7 +772,7 @@ function GroupInfo() {
                 <label htmlFor="tax-rate">Tax Rate (%):</label>
                 <input
                   type="number"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   id="tax-rate"
                   value={taxRate}
                   onChange={(e) => setTaxRate(e.target.value)}
@@ -832,7 +832,7 @@ function GroupInfo() {
               <label htmlFor="settleAmountInput">Enter Amount to Settle:</label>
               <input 
                 type="number" 
-                inputMode="numeric"
+                inputMode="decimal"
                 id="settleAmountInput"
                 value={settleAmount}
                 min="0"
