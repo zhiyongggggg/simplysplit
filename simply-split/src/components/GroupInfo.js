@@ -41,6 +41,8 @@ function GroupInfo() {
   const [remainingAmount, setRemainingAmount] = useState("0");
   const [unsettledAmount, setUnsettledAmount] = useState("0");
   const [taxRate, setTaxRate] = useState("0"); 
+  const [selectedPayers, setSelectedPayers] = useState([]);
+  const [selectedPeople, setSelectedPeople] = useState([]);
 
   // For settle up portion
   const [settlement, setSettlement] = useState({});
@@ -196,6 +198,8 @@ function GroupInfo() {
     setRemainingAmount("0");
     setUnsettledAmount("0");
     setTaxRate("0");
+    setSelectedPayers([]);
+    setSelectedPeople([]);
   };
   const handleCloseSettleUpModal = () => {
     setIsSettleUpModalOpen(false);
@@ -233,6 +237,47 @@ function GroupInfo() {
     setPeopleAmounts((prev) => ({ ...prev, [personId]: value }));
   };
 
+  // ============ Updating Payer and People Involved ============ 
+  const handleTogglePayer = (member) => {
+    setSelectedPayers((prevState) => {
+      const updatedPayers = prevState.includes(member)
+        ? prevState.filter((m) => m !== member)
+        : [...prevState, member];
+  
+      // Calculate split amounts based on the updated payers
+      if (updatedPayers.length === 0) {
+        return updatedPayers;
+      }
+      const splitAmount = roundTo2DpStr(parseFloat(totalAmount) / updatedPayers.length);
+      const updatedAmounts = {};
+      updatedPayers.forEach((payer) => {
+        updatedAmounts[payer] = splitAmount; 
+      });
+      setPayerAmounts(updatedAmounts);
+      return updatedPayers;
+    });
+  };
+  
+
+  const handleTogglePeople = (member) => {
+    setSelectedPeople((prevState) => {
+      const updatedPeople = prevState.includes(member)
+        ? prevState.filter((m) => m !== member)
+        : [...prevState, member];
+  
+      // Calculate split amounts based on the updated payers
+      if (updatedPeople.length === 0) {
+        return updatedPeople;
+      }
+      const splitAmount = roundTo2DpStr(parseFloat(totalAmount) / updatedPeople.length);
+      const updatedAmounts = {};
+      updatedPeople.forEach((people) => {
+        updatedAmounts[people] = splitAmount; 
+      });
+      setPeopleAmounts(updatedAmounts);
+      return updatedPeople;
+    });
+  }
 
   // ============ Split Unsettled Sum Equally ============ 
   const splitEqually = () => {
@@ -740,7 +785,7 @@ function GroupInfo() {
               </div>
               <h3>Payer:</h3>
               {groupData.members.map((member) => (
-                <div key={member} className="payer-selection">
+                <button key={member} className={`payer-selection ${selectedPayers.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePayer(member)}}>
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
@@ -750,15 +795,19 @@ function GroupInfo() {
                     value={payerAmounts[member] || 0}
                     onChange={(e) => handlePayerChange(member, e.target.value)}
                     onFocus={(e) => e.target.select()}
+                    onClick={(e) => { 
+                      e.stopPropagation();
+                      setSelectedPayers([]);
+                    }}
                     style={{ marginLeft: 'auto' }}
                   />
-                </div>
+                </button>
               ))}
               <div>Remaining Amount: {remainingAmount}</div>
               <br></br>
               <h3>People Involved:</h3>
               {groupData.members.map((member) => (
-                <div key={member} className="people-involved-selection">
+                <button key={member} className={`people-involved-selection ${selectedPeople.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePeople(member)}}>
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
@@ -768,9 +817,13 @@ function GroupInfo() {
                     value={peopleAmounts[member] || 0}
                     onChange={(e) => handlePeopleChange(member, e.target.value)}
                     onFocus={(e) => e.target.select()}
+                    onClick={(e) => { 
+                      e.stopPropagation();
+                      setSelectedPeople([]);
+                    }}
                     style={{ marginLeft: 'auto' }}
                   />
-                </div>
+                </button>
               ))}
               <div>Unsettled Borrowed Amount: {unsettledAmount}</div>
               <div className="form-group">

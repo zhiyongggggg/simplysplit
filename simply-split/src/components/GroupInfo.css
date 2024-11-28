@@ -390,7 +390,15 @@
   padding: 5px 15px;
   border: 2px solid #ccc; 
   border-radius: 12px; 
-  background-color: #f9f9f9; 
+  background-color: #f9f9f9;
+  width: 100%;
+}
+
+.groupinfo .group-members.selected,
+.groupinfo .payer-selection.selected,
+.groupinfo .people-involved-selection.selected {
+  background-color: #e8f7ff; 
+  border-color: #778f94; 
 }
 
 .groupinfo .settlement-entry {
