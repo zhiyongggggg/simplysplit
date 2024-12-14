@@ -4,42 +4,48 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f4f9;
+  background-color: #1a1a1a;
   font-family: 'Helvetica Neue', sans-serif;
-  color: #333;
+  color: #fff;
+}
+
+.register img {
+  height: 350px;
+  width: 350px;
 }
 
 .register h1 {
-  color: #1f1c4a;
-  font-size: 36px;
-  margin-bottom: 30px;
+  color: #fff;
+  font-size: 40px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .register form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
-  padding: 40px 20px 20px 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px 20px;
   width: 90%;
   max-width: 400px;
 }
   
 .register form label {
   width: 100%;
-  margin-bottom: 15px;
   font-size: 16px;
-  color: #333;
+  color: #fff;
+  font-weight: 500;
 }
 
 .register input[type="text"],
 .register input[type="password"] {
   width: 100%;
   padding: 10px;
-  margin-top: 5px;
-  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  margin-left: 0px;
+  border-radius: 10px;
   border: 1px solid #ccc;
   font-size: 16px;
 }
@@ -47,24 +53,26 @@
 .register .error-message {
   margin-top: 5px;
   color: red;
+  text-align: center;
 }
 
 .register button {
-  width: 100%;
-  padding: 15px;
-  background: #1f1c4a;
+  width: 60%;
+  padding: 12px 15px;
+  background: #1e90ff;
   color: white;
-  border-radius: 10px;
+  border-radius: 50px;
   border: none;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
+  margin-top: 10px;
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
   
 .register button:hover {
-  background-color: #6c63ff;
-  transform: translateY(-5px);
+  background-color: #005db9;
+  transform: translateY(-3px);
 }
 
 .register .login-link {
@@ -73,7 +81,7 @@
 
 .register .clickable {
   cursor: pointer;
-  color: blue;
+  color: #707070;
 }
   
 @media (max-width: 600px) {

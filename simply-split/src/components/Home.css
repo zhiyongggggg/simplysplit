@@ -4,8 +4,8 @@
     justify-content: flex-start;
     min-height: 100vh;
     font-family: 'Helvetica Neue', sans-serif;
-    color: #333;
-    background-color: #f4f4f9;
+    color: #fff;
+    background-color: #1a1a1a;
 }
 
 .home .header {
@@ -29,7 +29,7 @@
 
 .home .body h2 {
     text-align: center;
-    color: #333;
+    color: #fff;
     font-size: 24px;
     font-weight: bold;
 }
@@ -64,10 +64,9 @@
     width: 80%;
     max-width: 700px;
     padding: 20px;
-    background: linear-gradient(135deg, #e0e7ff, #f0f0ff); 
+    background: #333; 
     border-radius: 10px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15); 
-    border: none;
+    border: 1px solid white;
     cursor: pointer;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;

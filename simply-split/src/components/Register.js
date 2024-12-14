@@ -1,5 +1,7 @@
 import './Register.css';
 
+import loginregister from '../loginregister.png';
+
 import { useState } from 'react';
 import { auth, db } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -52,7 +54,8 @@ function Register() {
 
   return (
     <div className="register">
-      <h1>Register an Account</h1>
+      <img src={loginregister} />
+      <h1>The only expense tracking web app you need.</h1>
       <form onSubmit={handleSubmit}>
         <label>
           Email:
@@ -88,8 +91,7 @@ function Register() {
           {isLoading ? 'Loading...' : 'Register'}
         </button>
         <p className="login-link">
-          Already have an account? Login
-          <span onClick={handleLoginRedirect} className="clickable"> here!</span>
+          <span onClick={handleLoginRedirect} className="clickable">- Login -</span>
         </p>
       </form>
     </div>

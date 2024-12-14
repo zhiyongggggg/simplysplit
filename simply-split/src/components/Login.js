@@ -1,5 +1,7 @@
 import './Login.css';
 
+import loginregister from '../loginregister.png';
+
 import { useState } from 'react';
 import { auth } from './firebase' 
 import { signInWithEmailAndPassword } from 'firebase/auth'; 
@@ -35,10 +37,11 @@ function Login({ onLogin }) {
 
   return (
     <div className="login">
-      <h1>Login to SimplySplit</h1>
+      <img src={loginregister} />
+      <h1>The only expense tracking web app you need.</h1>
       <form onSubmit={handleLogin}>
         <label>
-          Email:
+          Username or Email:
           <input 
             type="text" 
             value={email} 
@@ -57,11 +60,10 @@ function Login({ onLogin }) {
           {/* Error message if passwords don't match */}
           {error && <p className="error-message">{error}</p>}
         </label>
-        <p className="register-link">
-          Don't have an account? Register
-          <span onClick={handleRegisterRedirect} className="clickable"> here!</span>
-        </p>
         <button type="submit">Login</button>
+        <p className="register-link">
+          <span onClick={handleRegisterRedirect} className="clickable">- Register -</span>
+        </p>
       </form>
       
 
