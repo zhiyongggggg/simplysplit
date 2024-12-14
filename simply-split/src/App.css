@@ -18,11 +18,28 @@
 
 /* Header styling */
 .header {
-  background: linear-gradient(135deg, #6c63ff, #1f1c4a);
   max-height: 20vh;
-  padding: 5vh 5vh;
+  padding: 3vh 2vh 2vh 2vh;
+  background-color: #1a1a1a;
   color: white;
   text-align: center;
+}
+
+
+.hamburger {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  font-size: 30px;
+  cursor: pointer;
+  color: white;
+}
+
+
+hr.divider {
+  border: none; 
+  height: 1px; 
+  background-color: #ccc;
 }
 
 /* Body section */

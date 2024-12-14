@@ -115,12 +115,13 @@ function JoinGroup() {
   return (
     <div className="joingroup">
       <div className="header">
-        <h1>SimplySplit</h1>
-        <p>Log your group expenses here!</p>
+        {/* Hamburger Menu on the left */}
         <div className="hamburger" onClick={toggleMenu}>
           &#9776;
         </div>
+        <h1>SimplySplit</h1>
       </div>
+      <hr className="divider" />
 
       <Sidebar
         isMenuOpen={isMenuOpen}

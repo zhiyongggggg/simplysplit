@@ -599,12 +599,13 @@ function GroupInfo() {
     <div className="groupinfo">
       <div className={`content ${isConfirmDeleteModalOpen || isAddTransactionModalOpen || isSettleUpModalOpen || isIndividualSettleModalOpen || isSettingsModalOpen ? 'blur-background' : ''}`}>
         <div className="header">
-          <h1>SimplySplit</h1>
-          <p>Log your group expenses here!</p>
+          {/* Hamburger Menu on the left */}
           <div className="hamburger" onClick={toggleMenu}>
             &#9776;
           </div>
+          <h1>SimplySplit</h1>
         </div>
+        <hr className="divider" />
 
         <Sidebar
           isMenuOpen={isMenuOpen}
@@ -618,13 +619,13 @@ function GroupInfo() {
         <div className="body">
           {isLoading ? (
             <div className="loading-spinner">
-              <PropagateLoader color="#6c63ff" size={25}/>
+              <PropagateLoader color="#1e90ff" size={25}/>
             </div>
           ) : !groupData ? (
             <div className="error">Group not found.</div>
           ) : (
             <div>
-              <h2>{groupData.groupName}</h2>
+              <div className="category-box">{groupData.groupName}</div>
               <div>
                 {transactions.length > 0 ? (
                   transactions.map((transaction, index) => (

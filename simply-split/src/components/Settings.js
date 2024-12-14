@@ -20,13 +20,13 @@ function Settings() {
   return (
     <div className="settings">
       <div className="header">
-        <h1>SimplySplit</h1>
-        <p>Log your group expenses here!</p>
         {/* Hamburger Menu on the left */}
         <div className="hamburger" onClick={toggleMenu}>
           &#9776;
         </div>
+        <h1>SimplySplit</h1>
       </div>
+      <hr className="divider" />
 
       {/* Import the Sidebar component and pass the necessary props */}
       <Sidebar

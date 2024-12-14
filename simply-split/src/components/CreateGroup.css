@@ -8,24 +8,6 @@
     background-color: #f4f4f9;
 }
 
-.creategroup .header {
-    background: linear-gradient(135deg, #6c63ff, #1f1c4a);
-    max-height: 20vh;
-    padding: 5vh 5vh;
-    color: white;
-    text-align: center;
-    position: relative;
-}
-
-.creategroup .hamburger {
-    position: absolute;
-    top: 15px;
-    left: 20px; 
-    font-size: 30px;
-    cursor: pointer;
-    color: white;
-}
-
 .creategroup .create-group-form {
     display: flex;
     flex-direction: column;

@@ -19,30 +19,24 @@
   pointer-events: none; 
 }
 
-.groupinfo .header {
-  background: linear-gradient(135deg, #6c63ff, #1f1c4a);
-  max-height: 20vh;
-  padding: 5vh 5vh;
-  color: white;
-  text-align: center;
-  position: relative;
-}
-
-.groupinfo .hamburger {
-  position: absolute;
-  top: 15px;
-  left: 20px; 
-  font-size: 30px;
-  cursor: pointer;
-  color: white;
-}
-
 .groupinfo .body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+}
+
+.groupinfo .body .category-box {
+  width: 20%;
+  min-width: 150px;
+  padding: 10px 0px;
+  text-align: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #1e90ff;
+  border-radius: 10px;
 }
 
 .groupinfo .body h2 {
@@ -68,23 +62,25 @@
 .groupinfo .transaction {
   padding: 10px;
   margin: 10px 0;
-  border: 2px solid #ccc;
+  border: 1px solid #5ac8fc;
   border-radius: 15px;
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
-  background-color: #e2fbff;
+  background-color: #333;
+  color: #fff;
 }
 
 .groupinfo .settlement {
   padding: 10px;
   margin: 10px 0;
-  border: 2px solid #ccc;
+  border: 1px solid #39e53d;
   border-radius: 15px;
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
-  background-color: #e7ffe8;
+  background-color: #333;
+  color: #fff;
 }
 
 .groupinfo .transettle-item {
@@ -130,7 +126,7 @@
   left: 0;  
   right: 0; 
   margin: 0 auto; 
-  background-color: #1f1c4a;
+  background-color: #1e90ff;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -140,7 +136,7 @@
 }  
 
 .groupinfo .floating-navbar button {
-  background-color: #1f1c4a;
+  background-color: #1e90ff;
   color: white;
   border: none;
   width: 33%;
@@ -152,7 +148,7 @@
 }
 
 .groupinfo .floating-navbar button:hover {
-  background-color: #6c63ff; 
+  background-color: #1c78d3; 
   transform: scale(1.02); 
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); 
 }

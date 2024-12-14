@@ -8,24 +8,22 @@
     background-color: #1a1a1a;
 }
 
-.home .header {
-    background: linear-gradient(135deg, #6c63ff, #1f1c4a);
-    max-height: 20vh;
-    padding: 5vh 5vh;
-    color: white;
+.home .body {
+    display: flex;
+    align-items: center;
+}
+
+.home .body .category-box {
+    width: 10%;
+    min-width: 150px;
+    padding: 10px 0px;
     text-align: center;
-    position: relative;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #1e90ff;
+    border-radius: 10px;
 }
-
-.home .hamburger {
-    position: absolute;
-    top: 15px;
-    left: 20px;
-    font-size: 30px;
-    cursor: pointer;
-    color: white;
-}
-
 
 .home .body h2 {
     text-align: center;
@@ -33,6 +31,7 @@
     font-size: 24px;
     font-weight: bold;
 }
+
 
 .home .loading-spinner {
     flex-grow: 1;
@@ -50,6 +49,7 @@
 }
 
 .home .grouplist {
+    width: 100%;
     margin-top: 20px;
     flex-grow: 1;
     display: flex;
@@ -62,11 +62,10 @@
 
 .home .group {
     width: 80%;
-    max-width: 700px;
+    max-width: 500px;
     padding: 20px;
     background: #333; 
     border-radius: 10px;
-    border: 1px solid white;
     cursor: pointer;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
