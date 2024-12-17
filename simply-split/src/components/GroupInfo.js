@@ -624,7 +624,7 @@ function GroupInfo() {
           ) : !groupData ? (
             <div className="error">Group not found.</div>
           ) : (
-            <div>
+            <div className="main-body">
               <div className="category-box">{groupData.groupName}</div>
               <div>
                 {transactions.length > 0 ? (
@@ -633,27 +633,40 @@ function GroupInfo() {
                       <button className="delete-icon" onClick={() => {handleOpenConfirmDeleteModal(transaction)}}>
                         <img src={deleteIcon} alt="Delete" />
                       </button>
-                      <h3>{transaction.description}</h3>
+                      <h3 className={`${transaction.type}-headers`}>{transaction.description}</h3>
                       {transaction.type === "transaction" ? (
                         <>
                           <p>Total Amount: ${transaction.totalAmount}</p>
-                          <h4>Payer(s):</h4>
+                          <p className={`${transaction.type}-headers underlined`}>Payer(s):</p>
                           {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
                             <p key={idx}>{payerID === currentUserId ? "You" : usernames[payerID]}: ${amount}</p>
                           ))}
-                          <h4>People Involved:</h4>
+                          <p className={`${transaction.type}-headers underlined`}>People Involved:</p>
                           {Object.entries(transaction.people).map(([personID, amount], idx) => (
                             <p key={idx}>{personID === currentUserId ? "You" : usernames[personID]}: ${amount}</p>
                           ))}
                         </>
                       ) : (
                         <>
-                          <p>{transaction.payer === currentUserId ? "You have" : usernames[transaction.payer] + " has"} paid <strong>{transaction.receiver === currentUserId ? "you" : usernames[transaction.receiver]}</strong>: ${transaction.totalAmount}.</p>
+                          <p>
+                            {transaction.payer === currentUserId ? (
+                              <strong>You</strong>
+                            ) : (
+                              <strong>{usernames[transaction.payer]}</strong>
+                            )}{" "}
+                            has paid{" "}
+                            <strong>
+                              {transaction.receiver === currentUserId
+                                ? "you"
+                                : usernames[transaction.receiver]}
+                            </strong>
+                            : ${transaction.totalAmount}.
+                          </p>
                         </>
                       )
                     }
 
-                      <p>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
+                      <p className={`${transaction.type}-headers`}>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
                     </div>
                   ))
                 ) : (
@@ -733,7 +746,7 @@ function GroupInfo() {
                   autoComplete='off'
                 />
               </div>
-              <h3>Payer:</h3>
+              <h3 style={{ marginBottom: '10px' }}>Payer:</h3>
               {groupData.members.map((member) => (
                 <div key={member} className="payer-selection">
                   <span>{usernames[member]}</span> 
@@ -750,7 +763,7 @@ function GroupInfo() {
               ))}
               <div>Remaining Amount: {remainingAmount}</div>
               <br></br>
-              <h3>People Involved:</h3>
+              <h3 style={{ marginBottom: '10px' }}>People Involved:</h3>
               {groupData.members.map((member) => (
                 <div key={member} className="people-involved-selection">
                   <span>{usernames[member]}</span> 
@@ -850,14 +863,14 @@ function GroupInfo() {
         <div className="modal-overlay">
           <div className="modal">
             <button className="modal-close-btn" onClick={handleCloseSettingsModal}>X</button>
-            <h2>Settings</h2>
-            <label htmlFor="setupField1">Group Members:</label>
+            <h2 style={{ marginBottom: '10px' }}>Settings</h2>
+            <label htmlFor="setupField1" style={{ marginBottom: '10px' }}>Group Members:</label>
             {groupData.members.map((member) => (
               <div key={member} className="group-members">
                 <span>{usernames[member]}</span> 
               </div>
             ))}
-            <label htmlFor="setupField1">Requests:</label>
+            <label htmlFor="setupField1" style={{ marginBottom: '10px' }}>Requests:</label>
             {groupData.requests.map((request) => (
               <div key={request} className="group-members">
                 <span>{usernames[request]}</span> 
@@ -869,7 +882,7 @@ function GroupInfo() {
             ))}
             <div className="function-button-row">
               <button className="submit-btn enabled" onClick={handleLeaveGroup}>
-                {isLoading ? "Leaving" : "Leave Group"}
+                {isLoading ? "Loading" : "Leave Group"}
               </button>
             </div>
           </div>

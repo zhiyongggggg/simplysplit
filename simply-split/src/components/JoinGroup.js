@@ -135,7 +135,7 @@ function JoinGroup() {
 
       <div className="body">
         <form className="join-group-form" onSubmit={handleSearchGroups}>
-          <label htmlFor="group-name">Group Name:</label>
+          <label htmlFor="group-name">Join a group:</label>
           <input
             type="text"
             value={groupName}

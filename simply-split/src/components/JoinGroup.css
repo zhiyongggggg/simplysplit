@@ -15,11 +15,14 @@
   justify-content: center;
   align-items: center;
   margin: 20px 0;
+  min-height: 40vh;
 }
 
 .joingroup .join-group-form label {
-  font-size: 18px;
+  font-size: 26px;
+  font-weight: 600;
   margin-bottom: 10px;
+  color: #fff;
 }
 
 .joingroup .join-group-form input {
@@ -36,7 +39,7 @@
   width: 80%;
   max-width: 400px;
   padding: 15px;
-  background-color: #1f1c4a;
+  background-color: #1e90ff;
   color: white;
   border-radius: 10px;
   border: none;
@@ -47,8 +50,8 @@
 }
 
 .joingroup .search-btn:hover {
-  background-color: #6c63ff;
-  transform: translateY(-5px);
+  background-color: #005db9;
+  transform: translateY(-3px);
 }
 
 .joingroup .error {
@@ -67,18 +70,17 @@ margin-top: 20px;
 .joingroup .found-group-name {
   margin-top: 20px;
   padding: 15px;
-  border: 2px solid #ccc;
   border-radius: 10px;
   width: 80%;
   max-width: 500px;
-  background-color: #fff;
+  background-color: #333;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .joingroup .found-group-name h2 {
   font-size: 1.5em;
-  color: #333;
+  color: #fff;
   margin-bottom: 15px;
 }
 
@@ -89,14 +91,14 @@ margin-top: 20px;
   font-weight: bold;
   border-radius: 8px;
   border: none;
-  background-color: #5b53ff;
+  background-color: #1e90ff;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .joingroup .request-btn:hover {
-  background-color: #6c63ff;
+  background-color: #005db9;
 }
 
 

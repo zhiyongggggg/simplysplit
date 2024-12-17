@@ -68,15 +68,14 @@
     border-radius: 10px;
     cursor: pointer;
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
     font-size: 18px; 
     color: #1f1c4a; 
     font-weight: bold;
 }
 
 .home .group:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
 }
 
 

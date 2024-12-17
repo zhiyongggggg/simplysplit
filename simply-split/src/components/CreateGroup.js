@@ -117,7 +117,7 @@ function CreateGroup() {
 
       <div className="body">
         <form className="create-group-form" onSubmit={handleCreateGroup}>
-          <label htmlFor="group-name">Group Name:</label>
+          <label htmlFor="group-name">Create a group:</label>
           <input
             type="text"
             id="group-name"
