@@ -98,12 +98,13 @@ function CreateGroup() {
   return (
     <div className="creategroup">
       <div className="header">
-        <h1>SimplySplit</h1>
-        <p>Create your group below!</p>
+        {/* Hamburger Menu on the left */}
         <div className="hamburger" onClick={toggleMenu}>
           &#9776;
         </div>
+        <h1>SimplySplit</h1>
       </div>
+      <hr className="divider" />
 
       <Sidebar
         isMenuOpen={isMenuOpen}
@@ -116,7 +117,7 @@ function CreateGroup() {
 
       <div className="body">
         <form className="create-group-form" onSubmit={handleCreateGroup}>
-          <label htmlFor="group-name">Group Name:</label>
+          <label htmlFor="group-name">Create a group:</label>
           <input
             type="text"
             id="group-name"

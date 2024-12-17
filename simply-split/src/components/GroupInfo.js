@@ -644,12 +644,13 @@ function GroupInfo() {
     <div className="groupinfo">
       <div className={`content ${isConfirmDeleteModalOpen || isAddTransactionModalOpen || isSettleUpModalOpen || isIndividualSettleModalOpen || isSettingsModalOpen ? 'blur-background' : ''}`}>
         <div className="header">
-          <h1>SimplySplit</h1>
-          <p>Log your group expenses here!</p>
+          {/* Hamburger Menu on the left */}
           <div className="hamburger" onClick={toggleMenu}>
             &#9776;
           </div>
+          <h1>SimplySplit</h1>
         </div>
+        <hr className="divider" />
 
         <Sidebar
           isMenuOpen={isMenuOpen}
@@ -663,13 +664,13 @@ function GroupInfo() {
         <div className="body">
           {isLoading ? (
             <div className="loading-spinner">
-              <PropagateLoader color="#6c63ff" size={25}/>
+              <PropagateLoader color="#1e90ff" size={25}/>
             </div>
           ) : !groupData ? (
             <div className="error">Group not found.</div>
           ) : (
-            <div>
-              <h2>{groupData.groupName}</h2>
+            <div className="main-body">
+              <div className="category-box">{groupData.groupName}</div>
               <div>
                 {transactions.length > 0 ? (
                   transactions.map((transaction, index) => (
@@ -677,32 +678,40 @@ function GroupInfo() {
                       <button className="delete-icon" onClick={() => {handleOpenConfirmDeleteModal(transaction)}}>
                         <img src={deleteIcon} alt="Delete" />
                       </button>
-                      <div className="description-row">
-                        <div className={`${transaction.type + "-circle"}`}>
-                          {transaction.type === "transaction" ? "T" : "S"}
-                        </div>
-                        <h3 className={`${transaction.type + "-h3"}`}>{transaction.description}</h3>
-                      </div>
+                      <h3 className={`${transaction.type}-headers`}>{transaction.description}</h3>
                       {transaction.type === "transaction" ? (
                         <>
                           <p>Total Amount: ${transaction.totalAmount}</p>
-                          <h4>Payer(s):</h4>
+                          <p className={`${transaction.type}-headers underlined`}>Payer(s):</p>
                           {Object.entries(transaction.payer).map(([payerID, amount], idx) => (
                             <p key={idx}>{payerID === currentUserId ? "You" : usernames[payerID]}: ${amount}</p>
                           ))}
-                          <h4>People Involved:</h4>
+                          <p className={`${transaction.type}-headers underlined`}>People Involved:</p>
                           {Object.entries(transaction.people).map(([personID, amount], idx) => (
                             <p key={idx}>{personID === currentUserId ? "You" : usernames[personID]}: ${amount}</p>
                           ))}
                         </>
                       ) : (
                         <>
-                          <p>{transaction.payer === currentUserId ? "You have" : usernames[transaction.payer] + " has"} paid <strong>{transaction.receiver === currentUserId ? "you" : usernames[transaction.receiver]}</strong>: ${transaction.totalAmount}.</p>
+                          <p>
+                            {transaction.payer === currentUserId ? (
+                              <strong>You</strong>
+                            ) : (
+                              <strong>{usernames[transaction.payer]}</strong>
+                            )}{" "}
+                            has paid{" "}
+                            <strong>
+                              {transaction.receiver === currentUserId
+                                ? "you"
+                                : usernames[transaction.receiver]}
+                            </strong>
+                            : ${transaction.totalAmount}.
+                          </p>
                         </>
                       )
                     }
 
-                      <p>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
+                      <p className={`${transaction.type}-headers`}>Date: {transaction.transactionTime?.toDate().toLocaleString()}</p>
                     </div>
                   ))
                 ) : (
@@ -783,7 +792,7 @@ function GroupInfo() {
                   autoComplete='off'
                 />
               </div>
-              <h3>Payer:</h3>
+              <h3 style={{ marginBottom: '10px' }}>Payer:</h3>
               {groupData.members.map((member) => (
                 <button key={member} className={`payer-selection ${selectedPayers.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePayer(member)}}>
                   <span>{usernames[member]}</span> 
@@ -805,7 +814,7 @@ function GroupInfo() {
               ))}
               <div>Remaining Amount: {remainingAmount}</div>
               <br></br>
-              <h3>People Involved:</h3>
+              <h3 style={{ marginBottom: '10px' }}>People Involved:</h3>
               {groupData.members.map((member) => (
                 <button key={member} className={`people-involved-selection ${selectedPeople.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePeople(member)}}>
                   <span>{usernames[member]}</span> 
@@ -912,32 +921,26 @@ function GroupInfo() {
         <div className="modal-overlay">
           <div className="modal">
             <button className="modal-close-btn" onClick={handleCloseSettingsModal}>X</button>
-            <h2>Settings</h2>
-            <label htmlFor="setupField1">Group Members:</label>
+            <h2 style={{ marginBottom: '10px' }}>Settings</h2>
+            <label htmlFor="setupField1" style={{ marginBottom: '10px' }}>Group Members:</label>
             {groupData.members.map((member) => (
               <div key={member} className="group-members">
                 <span>{usernames[member]}</span> 
               </div>
             ))}
-            <label htmlFor="setupField1">Requests:</label>
-            {
-              !groupData.requests || groupData.requests.length === 0 ? (
-                <div>There are no new request.</div>
-              ) : (
-                groupData.requests.map((requestId) => (
-                  <div key={requestId} className="group-members">
-                    <span>{usernames[requestId] || 'Unknown User'}</span> {/* Fallback for unknown usernames */}
-                    <span className="request-actions">
-                      <button className="request-button" onClick={() => handleAcceptRequest(requestId)}>✔️</button>
-                      <button className="request-button" onClick={() => handleRejectRequest(requestId)}>❌</button>
-                    </span>
-                  </div>
-                ))
-              )
-            }
+            <label htmlFor="setupField1" style={{ marginBottom: '10px' }}>Requests:</label>
+            {groupData.requests.map((request) => (
+              <div key={request} className="group-members">
+                <span>{usernames[request]}</span> 
+                <span className="request-actions">
+                  <button className="request-button" onClick={() => handleAcceptRequest(request)}>✔️</button>
+                  <button className="request-button" onClick={() => handleRejectRequest(request)}>❌</button>
+                </span>
+              </div>
+            ))}
             <div className="function-button-row">
               <button className="submit-btn enabled" onClick={handleLeaveGroup}>
-                {isLoading ? "Leaving" : "Leave Group"}
+                {isLoading ? "Loading" : "Leave Group"}
               </button>
             </div>
           </div>

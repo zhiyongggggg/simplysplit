@@ -14,6 +14,8 @@ function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const colors = ["5ac8fc", "39e53d", "bc62ff", "ffcc00", "ff2d55"]
+
   const { handleHome, handleJoinGroup, handleCreateGroup, handleSettings, handleLogout, handleGroupInfo } = useAppNavigation();
 
   const toggleMenu = () => {
@@ -46,14 +48,13 @@ function Home() {
   return (
     <div className="home">
       <div className="header">
-        <h1>SimplySplit</h1>
-        <p>Log your group expenses here!</p>
         {/* Hamburger Menu on the left */}
         <div className="hamburger" onClick={toggleMenu}>
           &#9776;
         </div>
+        <h1>SimplySplit</h1>
       </div>
-
+      <hr className="divider" />
       {/* Import the Sidebar component and pass the necessary props */}
       <Sidebar
         isMenuOpen={isMenuOpen}
@@ -66,21 +67,18 @@ function Home() {
       />
 
       <div className="body">
-        <h2>Your Groups</h2> {/* Header for groups */}
+        <div className="category-box">Your Groups</div>
         {isLoading ? (
           <div className="loading-spinner">
-            <PropagateLoader color="#6c63ff" size={25}/>
+            <PropagateLoader color="#1e90ff" size={25}/>
           </div>
         ) : groups.length === 0 ? (
           <div className="error">You are not in any groups</div> // Message when no groups are found
         ) : (
           <div className="grouplist">
-            {groups.map((group) => (
-              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupName, group.id, user.uid)}>
-                <div className="group-circle">
-                  {group.groupName.charAt(0).toUpperCase()}
-                </div>
-                <h2>{group.groupName}</h2> 
+            {groups.map((group, index) => (
+              <button key={group.id} className="group" onClick={() => handleGroupInfo(group.groupName, group.id, user.uid)} style={{ border: `1px solid #${colors[index % colors.length]}` }}>
+                <h2>{group.groupName}</h2>
               </button>
             ))}
           </div>

@@ -115,12 +115,13 @@ function JoinGroup() {
   return (
     <div className="joingroup">
       <div className="header">
-        <h1>SimplySplit</h1>
-        <p>Log your group expenses here!</p>
+        {/* Hamburger Menu on the left */}
         <div className="hamburger" onClick={toggleMenu}>
           &#9776;
         </div>
+        <h1>SimplySplit</h1>
       </div>
+      <hr className="divider" />
 
       <Sidebar
         isMenuOpen={isMenuOpen}
@@ -134,7 +135,7 @@ function JoinGroup() {
 
       <div className="body">
         <form className="join-group-form" onSubmit={handleSearchGroups}>
-          <label htmlFor="group-name">Group Name:</label>
+          <label htmlFor="group-name">Join a group:</label>
           <input
             type="text"
             value={groupName}

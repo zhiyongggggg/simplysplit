@@ -8,35 +8,20 @@
     background-color: #f4f4f9;
 }
 
-.creategroup .header {
-    background: linear-gradient(135deg, #6c63ff, #1f1c4a);
-    max-height: 20vh;
-    padding: 5vh 5vh;
-    color: white;
-    text-align: center;
-    position: relative;
-}
-
-.creategroup .hamburger {
-    position: absolute;
-    top: 15px;
-    left: 20px; 
-    font-size: 30px;
-    cursor: pointer;
-    color: white;
-}
-
 .creategroup .create-group-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     margin: 20px 0;
+    min-height: 40vh;
 }
 
 .creategroup .create-group-form label {
-    font-size: 18px;
+    font-size: 26px;
+    font-weight: 600;
     margin-bottom: 10px;
+    color: #fff;
 }
 
 .creategroup .create-group-form input {
@@ -53,7 +38,7 @@
     width: 80%;
     max-width: 400px;
     padding: 15px;
-    background-color: #6c63ff;
+    background-color: #1e90ff;
     color: white;
     border-radius: 10px;
     border: none;
@@ -64,8 +49,8 @@
 }
 
 .creategroup .create-btn:hover {
-    background-color: #8079fa;
-    transform: translateY(-5px);
+    background-color: #005db9;
+    transform: translateY(-3px);
 }
 
 .creategroup .group-info {

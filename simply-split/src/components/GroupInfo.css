@@ -4,7 +4,7 @@
   justify-content: flex-start;
   min-height: 100vh;
   font-family: 'Helvetica Neue', sans-serif;
-  color: #333;
+  color: #fff;
   background-color: #f4f4f9;
 }
 
@@ -19,30 +19,25 @@
   pointer-events: none; 
 }
 
-.groupinfo .header {
-  background: linear-gradient(135deg, #6c63ff, #1f1c4a);
-  max-height: 20vh;
-  padding: 5vh 5vh;
-  color: white;
-  text-align: center;
-  position: relative;
-}
-
-.groupinfo .hamburger {
-  position: absolute;
-  top: 15px;
-  left: 20px; 
-  font-size: 30px;
-  cursor: pointer;
-  color: white;
-}
-
-.groupinfo .body {
-  flex-grow: 1;
+.groupinfo .main-body {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+}
+
+.groupinfo .body .category-box {
+  width: 80%;
+  min-width: 150px;
+  max-width: 300px;
+  padding: 10px 0px;
+  text-align: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #1e90ff;
+  border-radius: 10px;
+  margin-bottom: 15px;
 }
 
 .groupinfo .body h2 {
@@ -52,9 +47,22 @@
   font-weight: bold;
 }
 
-.groupinfo h3,
-.groupinfo h4 {
-  color: #2b2765;
+.groupinfo .transaction-headers,
+.groupinfo .transaction-headers {
+  color: #5ac8fc;
+  margin-bottom: 5px;
+  width: 90%;
+}
+
+.groupinfo .settlement-headers,
+.groupinfo .settlement-headers {
+  color: #39e53d;
+  margin-bottom: 5px;
+  width: 90%;
+}
+
+.groupinfo .underlined {
+  text-decoration: underline;
 }
 
 .groupinfo .loading-spinner {
@@ -68,23 +76,25 @@
 .groupinfo .transaction {
   padding: 10px;
   margin: 10px 0;
-  border: 1px solid #1f1c4a;
-  border-radius: 7px;
+  border: 1px solid #5ac8fc;
+  border-radius: 15px;
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
-  background-color: #ecfdff;
+  background-color: #333;
+  color: #fff;
 }
 
 .groupinfo .settlement {
   padding: 10px;
   margin: 10px 0;
-  border: 1px solid #1f1c4a;
-  border-radius: 7px;
+  border: 1px solid #39e53d;
+  border-radius: 15px;
   max-width: 500px;
   min-width: 300px;
   width: 50vw;
-  background-color: #f0fff1;
+  background-color: #333;
+  color: #fff;
 }
 
 .groupinfo .transettle-item {
@@ -141,9 +151,9 @@
   width: 15px;
 }
 
-.groupinfo .transaction h3 {
-  margin: 0;
-  font-size: 1.2em;
+.groupinfo .transaction h3, 
+.groupinfo .settlement h3 {
+  font-size: 1.1em;
 }
 
 .groupinfo h3.transaction-h3 {
@@ -155,7 +165,11 @@
 }
 
 .groupinfo .transaction p {
-  margin: 5px 0;
+  margin: 7px 0;
+}
+
+.groupinfo .settlement p {
+  margin: 7px 0;
 }
 
 .groupinfo .error {
@@ -173,7 +187,7 @@
   left: 0;  
   right: 0; 
   margin: 0 auto; 
-  background-color: #1f1c4a;
+  background-color: #1e90ff;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -183,7 +197,7 @@
 }  
 
 .groupinfo .floating-navbar button {
-  background-color: #1f1c4a;
+  background-color: #1e90ff;
   color: white;
   border: none;
   width: 33%;
@@ -195,7 +209,7 @@
 }
 
 .groupinfo .floating-navbar button:hover {
-  background-color: #6c63ff; 
+  background-color: #1c78d3; 
   transform: scale(1.02); 
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); 
 }
@@ -220,7 +234,7 @@
 }
 
 .groupinfo .modal {
-  background: white;
+  background: #1a1a1a;
   padding: 20px 10px 20px 20px;
   border-radius: 10px;
   width: 90%;
@@ -234,7 +248,7 @@
 }
 
 .groupinfo .modal.pending-delete {
-  background: white;
+  background: #1a1a1a;
   padding: 20px 10px 20px 20px;
   border-radius: 10px;
   width: 90%;
@@ -283,7 +297,7 @@
   right: 20px;
   font-size: 18px;
   background: none;
-  color: black;
+  color: #fff;
   border: none;
   cursor: pointer;
 }
@@ -294,7 +308,7 @@
   right: 20px;
   font-size: 18px;
   background: none;
-  color: black;
+  color: #fff;
   border: none;
   cursor: pointer;
 }
@@ -365,7 +379,7 @@
 
 .groupinfo .submit-btn.enabled {
   width: 150px;
-  background-color: #5b53ff;
+  background-color: #1e90ff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -377,7 +391,7 @@
 }
 
 .groupinfo .submit-btn.enabled:hover {
-  background-color: #5a52e0; /* Darker shade on hover */
+  background-color: #005db9; 
 }
 
 .groupinfo .group-members,
@@ -387,18 +401,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  padding: 5px 15px;
-  border: 2px solid #ccc; 
-  border-radius: 12px; 
-  background-color: #f9f9f9;
-  width: 100%;
-}
-
-.groupinfo .group-members.selected,
-.groupinfo .payer-selection.selected,
-.groupinfo .people-involved-selection.selected {
-  background-color: #e8f7ff; 
-  border-color: #778f94; 
+  padding: 10px 15px;
+  border-radius: 8px; 
+  background-color: #333; 
 }
 
 .groupinfo .settlement-entry {
@@ -407,10 +412,9 @@
   align-items: center;
   margin-bottom: 10px;
   margin-top: 10px;
-  padding: 5px 15px;
-  border: 2px solid #ccc; 
+  padding: 10px 15px;
   border-radius: 12px; 
-  background-color: #f9f9f9; 
+  background-color: #333; 
 }
 
 .groupinfo .request-button {
