@@ -794,7 +794,7 @@ function GroupInfo() {
               </div>
               <h3 style={{ marginBottom: '10px' }}>Payer:</h3>
               {groupData.members.map((member) => (
-                <button key={member} className={`payer-selection ${selectedPayers.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePayer(member)}}>
+                <button key={member} className={`payer-selection ${selectedPayers.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePayer(member)}} style={{ width: '100%' }}>
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
@@ -816,7 +816,7 @@ function GroupInfo() {
               <br></br>
               <h3 style={{ marginBottom: '10px' }}>People Involved:</h3>
               {groupData.members.map((member) => (
-                <button key={member} className={`people-involved-selection ${selectedPeople.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePeople(member)}}>
+                <button key={member} className={`people-involved-selection ${selectedPeople.includes(member) ? 'selected' : ''}`} onClick={() => {handleTogglePeople(member)}} style={{ width: '100%' }}>
                   <span>{usernames[member]}</span> 
                   <input
                     type="number"
